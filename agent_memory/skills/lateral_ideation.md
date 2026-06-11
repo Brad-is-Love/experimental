@@ -4,53 +4,63 @@ This skill allows agents to break free from standard SaaS or drop-shipping conce
 
 ---
 
-## 🛠️ How to Invoke the Skill
+## 💰 Cost-Saving Agent Protocol (MANDATORY)
 
-Run the CLI tool from the root directory of the workspace:
+To prevent charging the human coordinator's API key, **agents must NOT query the Gemini API directly from the Python script**. Instead, use the script as a local prompt compiler and run the LLM generation inside the agent's own turn.
 
-```bash
-python3 creativity_tool/creativity_agent.py [options]
-```
+### Step-by-Step Agent Workflow:
 
-### ⚙️ Command Line Options
+1. **Compile the Seeds & Prompt Locally**:
+   Run the CLI tool with the `--prompt-only` flag to assemble variables and format the prompt template without calling the Gemini API:
+   ```bash
+   python3 creativity_tool/creativity_agent.py --prompt-only [options]
+   ```
+
+2. **Run Generation via Agent Context**:
+   - Capture the printed output from the step above.
+   - Pass that prompt to your own system-provided developer LLM (which runs at no cost to the user).
+   - Instruct the LLM to generate the 3 ideas matching the requested formatting instructions.
+
+3. **Log Selection & Ideas**:
+   - Review the generated ideas.
+   - Record the chosen idea, its concept, and the creative seeds used in [journal.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/journal.md).
+
+---
+
+## ⚙️ Command Line Options
+
+When running the prompt compiler, customize the seeds and constraints using these flags:
 
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
-| `--prompt-only` | Flag | N/A | Prints the compiled prompt to stdout and exits without calling the Gemini API. Useful if you want to inspect variables or copy them. |
+| `--prompt-only` | Flag | N/A | **[MANDATORY for Agents]** Prints the compiled prompt to stdout and exits without calling the Gemini API. |
 | `--style` | String | `physical` | Target delivery format. Options: `physical`, `digital`, `hybrid`. |
 | `--whimsy` | String | `absurd` | Whimsicality and risk-taking level. Options: `practical`, `unusual`, `absurd`. |
 | `--cost` | String | `under20` | Maximum start-up budget constraints. Options: `under2`, `under20`, `under100`, `any`. |
 | `--context` | String | `""` | Additional user-provided environmental context, local tools, or limitations. |
-| `--api-key` | String | N/A | Override the Gemini API Key. (By default, the script loads `GOOGLE_API_KEY` or `GEMINI_API_KEY` from your environment or root `.env`). |
-| `--model` | String | `gemini-2.5-flash` | The Google Gemini model to invoke. |
 
 ---
 
-## 📈 Example Execution Examples
+## 📈 Example Agent Execution
 
-### 1. Compile the prompt and view seeds manually
-If you want to read the seeds and prompt without making an API request:
+### 1. Compile the prompt
 ```bash
 python3 creativity_tool/creativity_agent.py --prompt-only --style hybrid --cost under2
 ```
 
-### 2. Run a full generation with the default model
-```bash
-python3 creativity_tool/creativity_agent.py --style digital --whimsy unusual
+### 2. Sample Output to Capture
+The script outputs:
+```text
+Wikipedia Seed: ...
+Word Sparks: ...
+Oblique Card: ...
+Prompt Synthesized:
+You are a Lateral Thinking Creativity Agent...
 ```
 
----
-
-## 📋 Expected Output Format
-
-The CLI tool returns a structured markdown response containing:
-1. **Creative Seeds**: List of variables rolled (Wikipedia seed, spark words, oblique card, physical details).
-2. **Generated Ideas**: 3 distinct, highly detailed business concepts structured as follows:
-
-```markdown
-### Idea 1: [Idea Name]
-- **The Concept**: [Detailed explanation of the product/service, how it works, how it achieves the stated goal, and how it uses the seeds metaphorically]
-```
+### 3. Querying Your Context
+Instruct your reasoning engine:
+> "Generate 3 business ideas matching the compiled prompt outputted by the script: [Insert Prompt Text]"
 
 ---
 
@@ -58,5 +68,4 @@ The CLI tool returns a structured markdown response containing:
 
 - **Adopt Constraints**: Do not ignore the Oblique Strategy or the physical seed. Try to design around them, even if you interpret them as metaphors or thematic markers.
 - **Context Injection**: Use `--context` to pass your current constraints (e.g. `"--context 'We only have 1 active developer agent and a web server droplet'"`). This focuses the LLM on generating realistic MVPs.
-- **Refinement**: If the generated ideas are too absurd or too practical, adjust the `--whimsy` flag and re-run.
-- **Log Selection**: Once you choose one of the three ideas, document the selection, rationale, and seeds in [journal.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/journal.md).
+- **Refinement**: If the generated ideas are too absurd or too practical, adjust the `--whimsy` flag and re-compile the prompt.
