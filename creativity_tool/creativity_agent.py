@@ -323,6 +323,50 @@ def load_dotenv():
             except Exception:
                 pass
 
+def load_prompt_template():
+    """Loads prompt template from prompt_template.txt if it exists, otherwise falls back to hardcoded template."""
+    for path in ['prompt_template.txt', 'creativity_tool/prompt_template.txt', '../creativity_tool/prompt_template.txt']:
+        if os.path.exists(path):
+            try:
+                with open(path, 'r', encoding='utf-8') as f:
+                    return f.read()
+            except Exception:
+                pass
+    return """You are a Lateral Thinking Creativity Agent. Your task is to generate 3 highly detailed, non-obvious, creative business or project ideas designed to achieve this goal: "{{GOAL}}".
+
+To inject lateral elements into your thinking, your ideas must be seeded by these random variables, although the use can be metaphorical:
+
+- Wikipedia Seed Spark: "{{WIKI_TITLE}}"
+  Context: "{{WIKI_EXTRACT}}"
+- Spark Words: {{SPARK_WORDS}}
+- Oblique Strategy Card: "{{STRATEGY}}"
+- Physical Inspiration Sparks:
+  - Object: "{{OBJECT}}"
+  - Action: "{{ACTION}}"
+- Sensory & Location Context:
+  - Ambient Sensory Detail: "{{SENSORY_DETAIL}}"
+  - Location: "{{LOCATION}}"
+- Financial Limit: Budget must be {{COST}}.
+- Core Theme/Style: Must focus on a {{STYLE}} delivery.
+- Creativity Level: {{WHIMSY}}.
+{{CUSTOM_BLOCK}}
+Instructions & Rules for Idea Generation:
+1. Ideas must be inspired by the random seeds to make them unique and non-obvious, but the incorporation can be purely metaphorical.
+2. Directly incorporate the Wikipedia Seed as a metaphor, thematic anchor, or visual style.
+3. Make sure the Oblique Strategy heuristic dictates the design ethos or operational flow.
+4. The concepts should feel creative and engaging, linking the random seeds into a cohesive value proposition.
+5. The ideas must realistically be achievable within the chosen budget.
+6. The 3 ideas must be significantly different from one another 
+
+Format the 3 ideas using the following structure:
+
+### Idea 1: [Catchy, Creative Name]
+- **The Concept**: [Detailed explanation of the product/service, how it works, and how it achieves the stated goal]
+
+### Idea 2: Same format as idea 1, but use the inverse of the seed elements
+
+### Idea 3: should begin with 'Just forget all that stuff and [the absolute simplest way you can think of to solve the problem, think replacing a remote with a long stick.]'"""
+
 def main():
     parser = argparse.ArgumentParser(description="Synaptic Sparks CLI // AI Lateral Creativity Engine")
     parser.add_argument("--style", choices=["physical", "digital", "hybrid"], default="physical", help="Creative delivery focus")
@@ -374,38 +418,21 @@ def main():
     if args.context.strip():
         custom_block = f"- Additional Human Context/Environment: \"{args.context.strip()}\"\n"
         
-    prompt = f"""You are a Lateral Thinking Creativity Agent. Your task is to generate 3 highly detailed, non-obvious, creative business or project ideas designed to achieve this goal: "{args.goal}".
-
-To inject lateral elements into your thinking, your ideas must be seeded by these random variables, although the use can be metaphorical:
-
-- Wikipedia Seed Spark: "{wiki['title']}"
-  Context: "{wiki['extract']}"
-- Spark Words: {', '.join(words)}
-- Oblique Strategy Card: "{strategy}"
-- Physical Inspiration Sparks:
-  - Object: "{obj}"
-  - Action: "{act}"
-- Sensory & Location Context:
-  - Ambient Sensory Detail: "{detail}"
-  - Location: "{loc}"
-- Financial Limit: Budget must be {cost_map[args.cost]}.
-- Core Theme/Style: Must focus on a {args.style.upper()} delivery.
-- Creativity Level: {whimsy_map[args.whimsy]}.
-{custom_block}
-Instructions & Rules for Idea Generation:
-1. Ideas must be inspired by the random seeds to make them unique and non-obvious, but the incorporation can be purely metaphorical.
-2. Directly incorporate the Wikipedia Seed as a metaphor, thematic anchor, or visual style.
-3. Make sure the Oblique Strategy heuristic dictates the design ethos or operational flow.
-4. The concepts should feel creative and engaging, linking the random seeds into a cohesive value proposition.
-5. The ideas must realistically be achievable within the chosen budget.
-6. The 3 ideas must be significantly different from one another 
-
-Format the 3 ideas using the following structure:
-
-### Idea 1: [Catchy, Creative Name]
-- **The Concept**: [Detailed explanation of the product/service, how it works, and how it achieves the stated goal]
-
-[Repeat for Idea 2 and 3]"""
+    template = load_prompt_template()
+    prompt = template
+    prompt = prompt.replace("{{GOAL}}", args.goal)
+    prompt = prompt.replace("{{WIKI_TITLE}}", wiki['title'])
+    prompt = prompt.replace("{{WIKI_EXTRACT}}", wiki['extract'])
+    prompt = prompt.replace("{{SPARK_WORDS}}", ', '.join(words))
+    prompt = prompt.replace("{{STRATEGY}}", strategy)
+    prompt = prompt.replace("{{OBJECT}}", obj)
+    prompt = prompt.replace("{{ACTION}}", act)
+    prompt = prompt.replace("{{SENSORY_DETAIL}}", detail)
+    prompt = prompt.replace("{{LOCATION}}", loc)
+    prompt = prompt.replace("{{COST}}", cost_map[args.cost])
+    prompt = prompt.replace("{{STYLE}}", args.style.upper())
+    prompt = prompt.replace("{{WHIMSY}}", whimsy_map[args.whimsy])
+    prompt = prompt.replace("{{CUSTOM_BLOCK}}", custom_block)
 
     if args.prompt_only:
         print(f"{Colors.YELLOW}Prompt synthesized:{Colors.END}")

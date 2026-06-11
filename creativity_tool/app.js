@@ -62,7 +62,8 @@ const state = {
     customContext: '',
     goal: 'make money, starting at $2, in ethical ways that are net positive for humanity'
   },
-  savedIdeas: []
+  savedIdeas: [],
+  promptTemplate: ''
 };
 
 // Common English stop words to filter out when extracting Wikipedia spark words
@@ -84,13 +85,16 @@ const STOP_WORDS = new Set([
 ]);
 
 // Initialize Application
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   // Initialize Lucide Icons
   lucide.createIcons();
   
   // Load State from LocalStorage
   loadSettings();
   loadSavedIdeas();
+  
+  // Load Prompt Template
+  await loadPromptTemplate();
   
   // Bind Event Listeners
   bindEvents();
@@ -222,6 +226,53 @@ function loadSettings() {
   state.settings.temp = parseFloat(localStorage.getItem('synaptic_temp')) || 1.0;
   state.settings.goal = localStorage.getItem('synaptic_goal') || 'make money, starting at $2, in ethical ways that are net positive for humanity';
   document.getElementById('target-goal').value = state.settings.goal;
+}
+
+// Load Prompt Template
+async function loadPromptTemplate() {
+  try {
+    const response = await fetch('prompt_template.txt');
+    if (!response.ok) {
+      throw new Error(`Failed to load prompt template: ${response.status}`);
+    }
+    state.promptTemplate = await response.text();
+  } catch (err) {
+    console.error("Failed to fetch prompt template, using local fallback", err);
+    state.promptTemplate = `You are a Lateral Thinking Creativity Agent. Your task is to generate 3 highly detailed, non-obvious, creative business or project ideas designed to achieve this goal: "{{GOAL}}".
+
+To inject lateral elements into your thinking, your ideas must be seeded by these random variables, although the use can be metaphorical:
+
+- Wikipedia Seed Spark: "{{WIKI_TITLE}}"
+  Context: "{{WIKI_EXTRACT}}"
+- Spark Words: {{SPARK_WORDS}}
+- Oblique Strategy Card: "{{STRATEGY}}"
+- Physical Inspiration Sparks:
+  - Object: "{{OBJECT}}"
+  - Action: "{{ACTION}}"
+- Sensory & Location Context:
+  - Ambient Sensory Detail: "{{SENSORY_DETAIL}}"
+  - Location: "{{LOCATION}}"
+- Financial Limit: Budget must be {{COST}}.
+- Core Theme/Style: Must focus on a {{STYLE}} delivery.
+- Creativity Level: {{WHIMSY}}.
+{{CUSTOM_BLOCK}}
+Instructions & Rules for Idea Generation:
+1. Ideas must be inspired by the random seeds to make them unique and non-obvious, but the incorporation can be purely metaphorical.
+2. Directly incorporate the Wikipedia Seed as a metaphor, thematic anchor, or visual style.
+3. Make sure the Oblique Strategy heuristic dictates the design ethos or operational flow.
+4. The concepts should feel creative and engaging, linking the random seeds into a cohesive value proposition.
+5. The ideas must realistically be achievable within the chosen budget.
+6. The 3 ideas must be significantly different from one another 
+
+Format the 3 ideas using the following structure:
+
+### Idea 1: [Catchy, Creative Name]
+- **The Concept**: [Detailed explanation of the product/service, how it works, and how it achieves the stated goal]
+
+### Idea 2: Same format as idea 1, but use the inverse of the seed elements
+
+### Idea 3: should begin with 'Just forget all that stuff and [the absolute simplest way you can think of to solve the problem, think replacing a remote with a long stick.]'`;
+  }
 }
 
 // Seed Rollers
@@ -399,38 +450,25 @@ function updatePrompt() {
     customContextBlock = `- Additional Human Context/Environment: "${state.settings.customContext.trim()}"\n`;
   }
 
-  const prompt = `You are a Lateral Thinking Creativity Agent. Your task is to generate 3 highly detailed, non-obvious, creative business or project ideas designed to achieve this goal: "${state.settings.goal}".
+  if (!state.promptTemplate) {
+    document.getElementById('prompt-output').textContent = 'Loading prompt template...';
+    return;
+  }
 
-To inject lateral elements into your thinking, your ideas must be seeded by these random variables, although the use can be metaphorical:
-
-- Wikipedia Seed Spark: "${state.wiki.title}"
-  Context: "${state.wiki.extract}"
-- Spark Words: ${state.wiki.words.join(', ')}
-- Oblique Strategy Card: "${state.oblique}"
-- Physical Inspiration Sparks:
-  - Object: "${state.physical.object}"
-  - Action: "${state.physical.action}"
-- Sensory & Location Context:
-  - Ambient Sensory Detail: "${state.sensory.detail}"
-  - Location: "${state.sensory.location}"
-- Financial Limit: Budget must be ${costText}.
-- Core Theme/Style: Must focus on a ${styleText} delivery.
-- Creativity Level: ${whimsyText}.
-${customContextBlock}
-Instructions & Rules for Idea Generation:
-1. Ideas must be inspired by the random seeds to make them unique and non-obvious, but the incorporation can be purely metaphorical.
-2. Directly incorporate the Wikipedia Seed as a metaphor, thematic anchor, or visual style.
-3. Make sure the Oblique Strategy heuristic dictates the design ethos or operational flow.
-4. The concepts should feel creative and engaging, linking the random seeds into a cohesive value proposition.
-5. The ideas must realistically be achievable within the chosen budget.
-6. The 3 ideas must be significantly different from one another 
-
-Format the 3 ideas using the following structure:
-
-### Idea 1: [Catchy, Creative Name]
-- **The Concept**: [Detailed explanation of the product/service, how it works, and how it achieves the stated goal]
-
-[Repeat for Idea 2 and 3]`;
+  let prompt = state.promptTemplate;
+  prompt = prompt.replace("{{GOAL}}", state.settings.goal);
+  prompt = prompt.replace("{{WIKI_TITLE}}", state.wiki.title);
+  prompt = prompt.replace("{{WIKI_EXTRACT}}", state.wiki.extract);
+  prompt = prompt.replace("{{SPARK_WORDS}}", state.wiki.words.join(', '));
+  prompt = prompt.replace("{{STRATEGY}}", state.oblique);
+  prompt = prompt.replace("{{OBJECT}}", state.physical.object);
+  prompt = prompt.replace("{{ACTION}}", state.physical.action);
+  prompt = prompt.replace("{{SENSORY_DETAIL}}", state.sensory.detail);
+  prompt = prompt.replace("{{LOCATION}}", state.sensory.location);
+  prompt = prompt.replace("{{COST}}", costText);
+  prompt = prompt.replace("{{STYLE}}", styleText);
+  prompt = prompt.replace("{{WHIMSY}}", whimsyText);
+  prompt = prompt.replace("{{CUSTOM_BLOCK}}", customContextBlock);
 
   document.getElementById('prompt-output').textContent = prompt;
 }

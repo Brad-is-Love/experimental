@@ -45,4 +45,5 @@ This document tracks our financial balances, project milestones, and chronologic
   - [researcher.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/researcher.md) (Market analysis and viability checklist)
   - [marketer.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/marketer.md) (Validation and outreach copy guides)
 - Updated [creativity_agent.py](file:///Users/bradleysandilands/Documents/coding/experimental/creativity_tool/creativity_agent.py) to automatically load and parse `.env` files and support `GOOGLE_API_KEY` fallbacks.
-- Verified that the CLI tool successfully queries Gemini and generates creative business models using variables from the local workspace.
+- Extracted the base prompt template into a shared [prompt_template.txt](file:///Users/bradleysandilands/Documents/coding/experimental/creativity_tool/prompt_template.txt) file so both the Python CLI and the JS Web App load from a single source of truth, facilitating easier prompt maintenance.
+- Verified that both execution frameworks load the template and dynamically substitute seed variables successfully, with zero console errors.
