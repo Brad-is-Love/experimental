@@ -308,6 +308,21 @@ def call_gemini(api_key, model, prompt, temp):
         print(f"\n{Colors.RED}Gemini API Call Failed: {e}{Colors.END}")
         return None
 
+def load_dotenv():
+    """Loads environment variables from .env file if it exists, without external dependencies."""
+    for path in ['.env', '../.env', 'creativity_tool/.env']:
+        if os.path.exists(path):
+            try:
+                with open(path, 'r') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#') and '=' in line:
+                            k, v = line.split('=', 1)
+                            v = v.strip('\'"')
+                            os.environ[k.strip()] = v.strip()
+            except Exception:
+                pass
+
 def main():
     parser = argparse.ArgumentParser(description="Synaptic Sparks CLI // AI Lateral Creativity Engine")
     parser.add_argument("--style", choices=["physical", "digital", "hybrid"], default="physical", help="Creative delivery focus")
@@ -398,9 +413,10 @@ Format the 3 ideas using the following structure:
         sys.exit(0)
         
     # Get API key
-    api_key = args.api_key or os.environ.get('GEMINI_API_KEY')
+    load_dotenv()
+    api_key = args.api_key or os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KEY')
     if not api_key:
-        print(f"{Colors.YELLOW}GEMINI_API_KEY env variable or --api-key argument not found.{Colors.END}")
+        print(f"{Colors.YELLOW}GEMINI_API_KEY or GOOGLE_API_KEY env variable or --api-key argument not found.{Colors.END}")
         print(f"Here is your compiled creativity prompt. Copy and run it in your LLM:\n")
         print(prompt)
         sys.exit(0)
