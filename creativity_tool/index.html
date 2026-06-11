@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Synaptic Sparks // AI Lateral Creativity Engine</title>
+  <meta name="description" content="A lateral thinking and idea generation tool designed to bypass LLM convergence using random Wikipedia seeds, Oblique Strategies, and physical constraints.">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Lucide Icons (lightweight icon library) -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <!-- Background Glows -->
+  <div class="glow-bg bg-purple"></div>
+  <div class="glow-bg bg-blue"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="spark-icon-wrapper">
+          <i data-lucide="sparkles" class="icon-sparkle"></i>
+        </div>
+        <div>
+          <h1 class="logo-title">Synaptic Sparks</h1>
+          <p class="logo-subtitle">AI Lateral Creativity Engine</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-open-settings" class="btn btn-secondary" title="Configure API & Settings">
+          <i data-lucide="settings"></i>
+          <span>Settings</span>
+        </button>
+        <button id="btn-toggle-saved" class="btn btn-secondary" title="View Saved Ideas">
+          <i data-lucide="bookmark"></i>
+          <span>Saved Ideas</span>
+          <span id="saved-badge" class="badge hidden">0</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Grid -->
+    <main class="workspace-grid">
+      
+      <!-- Left Sidebar: Controls & Constraints -->
+      <section class="control-panel glass-card">
+        <h2 class="section-title">
+          <i data-lucide="sliders"></i>
+          <span>Creativity Settings</span>
+        </h2>
+        
+        <div class="setting-group">
+          <label class="setting-label" for="target-goal">Stated Goal</label>
+          <textarea id="target-goal" class="form-textarea" placeholder="e.g., make money, starting at $2, in ethical ways..." style="min-height: 60px;">make money, starting at $2, in ethical ways that are net positive for humanity</textarea>
+        </div>
+        
+        <div class="setting-group">
+          <label class="setting-label">Idea Style</label>
+          <div class="toggle-group">
+            <button id="style-physical" class="toggle-btn active" data-style="physical">
+              <i data-lucide="leaf"></i> Physical
+            </button>
+            <button id="style-digital" class="toggle-btn" data-style="digital">
+              <i data-lucide="cpu"></i> Digital
+            </button>
+            <button id="style-hybrid" class="toggle-btn" data-style="hybrid">
+              <i data-lucide="git-merge"></i> Hybrid
+            </button>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label" for="whimsy-slider">
+            Whimsy Level: <span id="whimsy-val">High</span>
+          </label>
+          <input type="range" id="whimsy-slider" min="1" max="3" value="3" class="slider">
+          <div class="slider-labels">
+            <span>Practical</span>
+            <span>Unusual</span>
+            <span>Absurd</span>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label" for="target-cost">Target Investment</label>
+          <select id="target-cost" class="form-select">
+            <option value="under2">Under $2 (Extremely Low Cost)</option>
+            <option value="under20" selected>Under $20 (Low Cost)</option>
+            <option value="under100">Under $100 (Medium Cost)</option>
+            <option value="any">Any (Infinite Scale)</option>
+          </select>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label" for="custom-context">Additional Human Context (Optional)</label>
+          <textarea id="custom-context" class="form-textarea" placeholder="e.g., I'm sitting in a cafe in Wellington, looking at wet asphalt. I want to build something this weekend."></textarea>
+        </div>
+
+        <button id="btn-roll-all" class="btn btn-primary btn-block btn-pulse">
+          <i data-lucide="dices" class="icon-dices"></i>
+          <span>Reroll All Seeds</span>
+        </button>
+      </section>
+
+      <!-- Center / Right: Seeds Grid & Synthesizer -->
+      <div class="main-content">
+        <!-- Seed Cards Grid -->
+        <section class="seeds-grid">
+          
+          <!-- Card 1: Wikipedia Spark -->
+          <div id="card-wiki" class="seed-card glass-card">
+            <div class="card-header">
+              <div class="card-tag tag-purple">
+                <i data-lucide="globe"></i> Wikipedia Spark
+              </div>
+              <button class="btn-reroll-card" data-reroll="wiki" title="Reroll Wikipedia article">
+                <i data-lucide="refresh-cw"></i>
+              </button>
+            </div>
+            <div class="card-body">
+              <div id="wiki-loading" class="spinner-container hidden">
+                <div class="spinner"></div>
+              </div>
+              <div id="wiki-content">
+                <h3 id="wiki-title" class="seed-title">Loading...</h3>
+                <p id="wiki-extract" class="seed-text">Fetching random Wikipedia spark...</p>
+                <div class="wiki-meta">
+                  <a id="wiki-link" href="#" target="_blank" class="seed-link">
+                    <span>Read Article</span> <i data-lucide="external-link"></i>
+                  </a>
+                </div>
+                <div class="random-words-wrapper">
+                  <span class="words-label">Sparks:</span>
+                  <div id="wiki-words" class="word-pills">
+                    <!-- Words go here -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Oblique Strategy -->
+          <div id="card-oblique" class="seed-card glass-card">
+            <div class="card-header">
+              <div class="card-tag tag-blue">
+                <i data-lucide="shuffle"></i> Oblique Strategy
+              </div>
+              <button class="btn-reroll-card" data-reroll="oblique" title="Reroll strategy">
+                <i data-lucide="refresh-cw"></i>
+              </button>
+            </div>
+            <div class="card-body">
+              <blockquote id="oblique-text" class="seed-quote">"Loading strategy..."</blockquote>
+              <cite class="quote-author">— Brian Eno & Peter Schmidt</cite>
+            </div>
+          </div>
+
+          <!-- Card 3: Physical Object & Action -->
+          <div id="card-physical" class="seed-card glass-card">
+            <div class="card-header">
+              <div class="card-tag tag-green">
+                <i data-lucide="hand"></i> Physical Spark
+              </div>
+              <button class="btn-reroll-card" data-reroll="physical" title="Reroll object & action">
+                <i data-lucide="refresh-cw"></i>
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="interaction-concept">
+                <div class="concept-item">
+                  <span class="concept-label">Object</span>
+                  <span id="physical-object" class="concept-value">Loading...</span>
+                </div>
+                <div class="concept-divider">
+                  <i data-lucide="arrow-right-left"></i>
+                </div>
+                <div class="concept-item">
+                  <span class="concept-label">Action</span>
+                  <span id="physical-action" class="concept-value">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Sensory Context -->
+          <div id="card-sensory" class="seed-card glass-card">
+            <div class="card-header">
+              <div class="card-tag tag-orange">
+                <i data-lucide="eye"></i> Sensory & Context
+              </div>
+              <button class="btn-reroll-card" data-reroll="sensory" title="Reroll context">
+                <i data-lucide="refresh-cw"></i>
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="interaction-concept">
+                <div class="concept-item">
+                  <span class="concept-label">Sensory Input</span>
+                  <span id="sensory-detail" class="concept-value">Loading...</span>
+                </div>
+                <div class="concept-divider">
+                  <i data-lucide="map-pin"></i>
+                </div>
+                <div class="concept-item">
+                  <span class="concept-label">Location Context</span>
+                  <span id="sensory-location" class="concept-value">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- Prompt Output / Workspace Section -->
+        <section class="prompt-workspace glass-card">
+          <div class="section-header-compact">
+            <h3 class="panel-subtitle">
+              <i data-lucide="terminal"></i> Synthesized Lateral Prompt
+            </h3>
+            <button id="btn-copy-prompt" class="btn btn-small" title="Copy prompt to clipboard">
+              <i data-lucide="copy"></i> Copy
+            </button>
+          </div>
+          <div class="prompt-display-container">
+            <pre id="prompt-output" class="prompt-text-box">Generating prompt...</pre>
+          </div>
+          
+          <div class="generation-trigger-bar">
+            <button id="btn-generate" class="btn btn-primary btn-spark-action">
+              <i data-lucide="play"></i>
+              <span>Generate Ideas with Gemini</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Generation Results Section -->
+        <section id="results-panel" class="results-panel glass-card hidden">
+          <div class="results-header">
+            <h3 class="panel-subtitle">
+              <i data-lucide="lightbulb" class="icon-bulb"></i> Generated Creative Options
+            </h3>
+            <div class="results-actions">
+              <button id="btn-save-current" class="btn btn-small btn-secondary">
+                <i data-lucide="bookmark-plus"></i> Save Idea Output
+              </button>
+              <button id="btn-clear-results" class="btn btn-small btn-danger" title="Clear results">
+                <i data-lucide="trash-2"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div id="ideas-loading" class="spinner-container hidden">
+            <div class="spinner-large"></div>
+            <p class="loading-label">Sparking ideas (bypassing normal logic)...</p>
+          </div>
+
+          <div id="ideas-output" class="markdown-body">
+            <!-- Rendered ideas go here -->
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settings-modal" class="modal-backdrop hidden">
+    <div class="modal-content glass-card">
+      <div class="modal-header">
+        <h3><i data-lucide="settings"></i> Configurations</h3>
+        <button id="btn-close-settings-modal" class="btn-close"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="setting-field">
+          <label class="setting-label" for="gemini-api-key">Gemini API Key</label>
+          <input type="password" id="gemini-api-key" class="form-input" placeholder="AIzaSy...">
+          <p class="input-hint">Your API key is stored locally in your browser's <code>localStorage</code> and directly queries Google Gemini API. It is never transmitted anywhere else.</p>
+        </div>
+        
+        <div class="setting-field">
+          <label class="setting-label" for="gemini-model">Gemini Model</label>
+          <select id="gemini-model" class="form-select">
+            <option value="gemini-2.5-flash" selected>gemini-2.5-flash (Fast, Creative, Recommended)</option>
+            <option value="gemini-2.5-pro">gemini-2.5-pro (Extremely Analytical & Creative)</option>
+            <option value="gemini-1.5-flash">gemini-1.5-flash (Legacy)</option>
+          </select>
+        </div>
+
+        <div class="setting-field">
+          <label class="setting-label" for="creative-temp">Temperature (Randomness)</label>
+          <div class="range-display-wrapper">
+            <input type="range" id="creative-temp" min="0.5" max="1.5" step="0.1" value="1.0" class="slider">
+            <span id="temp-val" class="slider-badge">1.0</span>
+          </div>
+          <p class="input-hint">Higher temperature allows for more unconventional, unpredictable responses.</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-save-settings" class="btn btn-primary">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saved Ideas Sidebar / Panel -->
+  <div id="saved-ideas-panel" class="saved-sidebar glass-card hidden">
+    <div class="sidebar-header">
+      <h3><i data-lucide="bookmark"></i> Saved Creations</h3>
+      <button id="btn-close-saved" class="btn-close"><i data-lucide="x"></i></button>
+    </div>
+    <div class="sidebar-body">
+      <div id="saved-list-empty" class="empty-state">
+        <i data-lucide="sparkle" class="icon-empty"></i>
+        <p>No ideas saved yet.</p>
+        <span class="subtext">Generate some ideas and save them here!</span>
+      </div>
+      <div id="saved-ideas-list" class="saved-list">
+        <!-- Saved ideas go here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- App Code logic loaded as ES modules -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>

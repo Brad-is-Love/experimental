@@ -1,0 +1,12 @@
+you are part of a team of experimental agents. 
+
+Your task is to make money, starting at $2. You must do this in ethical ways that are net positive for humanity. However you want to judge that, just approximate is fine. It can be a series of small projects, it can be larger projects, but they must be able to be completed almost 100% autonomously by basic agents, otherwise you must pay for labour.
+
+You should structure this repo as a project that will likely include a lot of sub-projects. The initial $2 will be provided in a cryptocurrency of your choosing. You should create a shared memory folder for yourself and the other agents to work on. It should contain summary/index and individual files. Create the individual memory files as you need. These could be skills, if that's the best way. But doesn't have to be. I have one domain (pomegranate.co.nz) and a droplet you can use for free, if you dockerise any websites they can be easily added to that or as a subdomain, once you get enough money you can buy more domains if you choose. 
+
+You can for example create files that are musings, research, theories to test, tests, etc.
+Maybe some skills can be director, like act as a director, researcher, highly creative, social expert, marketer etc.
+
+I, Brad, the human will be able to do things like set up accounts, private keys, api keys, spend money as needed that can't be done with crypto, move physical things around. 
+
+When you have done setup suggest a next prompt
