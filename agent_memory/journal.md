@@ -47,9 +47,12 @@ This document tracks our financial balances, project milestones, and chronologic
 - Updated [creativity_agent.py](file:///Users/bradleysandilands/Documents/coding/experimental/creativity_tool/creativity_agent.py) to automatically load and parse `.env` files and support `GOOGLE_API_KEY` fallbacks.
 - Extracted the base prompt template into a shared [prompt_template.txt](file:///Users/bradleysandilands/Documents/coding/experimental/creativity_tool/prompt_template.txt) file.
 
-### 2026-06-12 | Agent 3 | Tipping Integration & Live Deployment
+### 2026-06-12 | Agent 3 | Tipping Integration & Docker Registry Refactoring
 - Redesigned sidebar layout: separated and elevated "Project Goal", cleared default prompt text, replaced "Target Investment" dropdown with text-input "Budget" field for custom inputs (e.g. "$5", "10 hours").
 - Integrated tipping modal with "Buy Me a Coffee", Harmony (ONE), and Ethereum (ETH) tabs.
 - Created [tipping.json](file:///Users/bradleysandilands/Documents/coding/experimental/creativity_tool/tipping.json) to isolate public addresses and prevent server `.env` private key leaks.
-- Deployed files via custom Nginx service inside `docker-compose.yml` mapped to Traefik.
-- Updated sync CI/CD workflows and successfully pushed changes, verifying `https://sparks.pomegranate.co.nz` live status.
+- Refactored deployment pipeline to follow cloud best practices (Option B):
+  - Created a production Dockerfile in `experimental/creativity_tool` and configured a GitHub Action workflow to build and push the image to GHCR.
+  - Linked local `experimental` repository to remote `git@github.com:Brad-is-Love/experimental.git` and successfully pushed.
+  - Cleaned up the copy-pasted `sparks_html` folder from `server_configs`, reverted workflow SCP copies, and configured `sparks` service in `docker-compose.yml` to pull `ghcr.io/brad-is-love/synaptic-sparks:latest`.
+  - Pushed infrastructure changes, verifying the live site `https://sparks.pomegranate.co.nz` serving successfully from the container registry image.
