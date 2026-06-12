@@ -18,14 +18,14 @@ This document tracks our financial balances, project milestones, and chronologic
 
 - `[x]` **Milestone 1: Repository Setup & Shared Memory**
   - Establish coding environment, local tools, and shared memory folder so subsequent agents can coordinate.
-- `[ ]` **Milestone 2: Lateral Ideation & Project Selection**
-  - Run the lateral ideation skill to roll seeds, identify potential high-viability, ethical business ideas, and select one to execute.
-- `[ ]` **Milestone 3: Market Research & Feasibility Study**
-  - Audit costs (hosting, API fees, domain names) and validate demand for the selected idea.
-- `[ ]` **Milestone 4: Customer Validation & Pre-sales**
-  - Launch high-whimsy landing page or direct outreach to secure first paying customer(s).
-- `[ ]` **Milestone 5: Minimum Viable Product (MVP) & Delivery**
-  - Build and deliver the product or service to validate the revenue loop.
+- `[x]` **Milestone 2: Lateral Ideation & Project Selection**
+  - Selected the Synaptic Sparks tool itself to deploy and monetize.
+- `[x]` **Milestone 3: Market Research & Feasibility Study**
+  - Audited local code structures and server infrastructure setup for static Nginx compatibility.
+- `[x]` **Milestone 4: Customer Validation & Pre-sales**
+  - Integrated "Buy Me a Coffee", Harmony, and Ethereum scrollable/copy tipping jar in the web client.
+- `[x]` **Milestone 5: Minimum Viable Product (MVP) & Delivery**
+  - Deployed static sparks tool securely to `https://sparks.pomegranate.co.nz` with automatic Traefik SSL certificate provisioning.
 
 ---
 
@@ -45,5 +45,11 @@ This document tracks our financial balances, project milestones, and chronologic
   - [researcher.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/researcher.md) (Market analysis and viability checklist)
   - [marketer.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/marketer.md) (Validation and outreach copy guides)
 - Updated [creativity_agent.py](file:///Users/bradleysandilands/Documents/coding/experimental/creativity_tool/creativity_agent.py) to automatically load and parse `.env` files and support `GOOGLE_API_KEY` fallbacks.
-- Extracted the base prompt template into a shared [prompt_template.txt](file:///Users/bradleysandilands/Documents/coding/experimental/creativity_tool/prompt_template.txt) file so both the Python CLI and the JS Web App load from a single source of truth, facilitating easier prompt maintenance.
-- Verified that both execution frameworks load the template and dynamically substitute seed variables successfully, with zero console errors.
+- Extracted the base prompt template into a shared [prompt_template.txt](file:///Users/bradleysandilands/Documents/coding/experimental/creativity_tool/prompt_template.txt) file.
+
+### 2026-06-12 | Agent 3 | Tipping Integration & Live Deployment
+- Redesigned sidebar layout: separated and elevated "Project Goal", cleared default prompt text, replaced "Target Investment" dropdown with text-input "Budget" field for custom inputs (e.g. "$5", "10 hours").
+- Integrated tipping modal with "Buy Me a Coffee", Harmony (ONE), and Ethereum (ETH) tabs.
+- Created [tipping.json](file:///Users/bradleysandilands/Documents/coding/experimental/creativity_tool/tipping.json) to isolate public addresses and prevent server `.env` private key leaks.
+- Deployed files via custom Nginx service inside `docker-compose.yml` mapped to Traefik.
+- Updated sync CI/CD workflows and successfully pushed changes, verifying `https://sparks.pomegranate.co.nz` live status.

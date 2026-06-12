@@ -58,9 +58,9 @@ const state = {
     temp: 1.0,
     style: 'physical',
     whimsy: 3,
-    cost: 'under20',
+    cost: 'under $20',
     customContext: '',
-    goal: 'make money, starting at $2, in ethical ways that are net positive for humanity'
+    goal: ''
   },
   savedIdeas: [],
   promptTemplate: ''
@@ -99,6 +99,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Bind Event Listeners
   bindEvents();
   
+  // Initialize Tipping Modal
+  initTipping();
+  
   // Initial Seeds Generation
   rollAllSeeds();
 });
@@ -128,9 +131,10 @@ function bindEvents() {
     updatePrompt();
   });
 
-  // Cost dropdown
-  document.getElementById('target-cost').addEventListener('change', (e) => {
+  // Budget input
+  document.getElementById('target-cost').addEventListener('input', (e) => {
     state.settings.cost = e.target.value;
+    localStorage.setItem('synaptic_cost', state.settings.cost);
     updatePrompt();
   });
 
@@ -224,8 +228,10 @@ function loadSettings() {
   state.settings.apiKey = localStorage.getItem('synaptic_api_key') || '';
   state.settings.model = localStorage.getItem('synaptic_model') || 'gemini-2.5-flash';
   state.settings.temp = parseFloat(localStorage.getItem('synaptic_temp')) || 1.0;
-  state.settings.goal = localStorage.getItem('synaptic_goal') || 'make money, starting at $2, in ethical ways that are net positive for humanity';
+  state.settings.goal = localStorage.getItem('synaptic_goal') || '';
   document.getElementById('target-goal').value = state.settings.goal;
+  state.settings.cost = localStorage.getItem('synaptic_cost') || 'under $20';
+  document.getElementById('target-cost').value = state.settings.cost;
 }
 
 // Load Prompt Template
@@ -434,16 +440,10 @@ function rollSensoryContext() {
 // Synthesize Prompt Text
 function updatePrompt() {
   const whimsyMap = { 1: 'Practical & Grounded', 2: 'Unusual & Creative', 3: 'Absurd & High-Whimsy' };
-  const costMap = {
-    'under2': 'under $2 (almost completely free, using trash/found objects/digital resources)',
-    'under20': 'under $20 (low-cost, minimal physical materials)',
-    'under100': 'under $100 (some budget for components/ads/hosting)',
-    'any': 'flexible/infinite'
-  };
 
   const styleText = state.settings.style.toUpperCase();
   const whimsyText = whimsyMap[state.settings.whimsy];
-  const costText = costMap[state.settings.cost];
+  const costText = state.settings.cost || 'under $20';
   
   let customContextBlock = '';
   if (state.settings.customContext.trim()) {
@@ -687,4 +687,132 @@ function deleteSavedIdea(id) {
   state.savedIdeas = state.savedIdeas.filter(idea => idea.id !== id);
   localStorage.setItem('synaptic_saved_creations', JSON.stringify(state.savedIdeas));
   renderSavedIdeas();
+}
+
+// Tipping Jar Module
+async function initTipping() {
+  const tippingModal = document.getElementById('tipping-modal');
+  const openBtn = document.getElementById('btn-open-tipping');
+  const closeBtn = document.getElementById('btn-close-tipping-modal');
+  
+  if (!tippingModal || !openBtn || !closeBtn) return;
+  
+  // Open Tipping Modal
+  openBtn.addEventListener('click', () => {
+    tippingModal.classList.remove('hidden');
+  });
+  
+  // Close Tipping Modal
+  closeBtn.addEventListener('click', () => {
+    tippingModal.classList.add('hidden');
+  });
+  
+  // Close modal when clicking on backdrop
+  tippingModal.addEventListener('click', (e) => {
+    if (e.target === tippingModal) {
+      tippingModal.classList.add('hidden');
+    }
+  });
+
+  // Tab switching logic
+  const tabBtns = document.querySelectorAll('.tipping-tab-btn');
+  const panels = document.querySelectorAll('.tipping-panel');
+  
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      // Remove active from all tab buttons
+      tabBtns.forEach(b => b.classList.remove('active'));
+      // Add active to current button
+      const targetBtn = e.currentTarget;
+      targetBtn.classList.add('active');
+      
+      // Remove active from all panels
+      panels.forEach(p => p.classList.remove('active'));
+      // Find target panel and show it
+      const targetTab = targetBtn.dataset.tab;
+      const targetPanel = document.getElementById(`tip-panel-${targetTab}`);
+      if (targetPanel) {
+        targetPanel.classList.add('active');
+      }
+    });
+  });
+
+  // Click-to-copy address action
+  const copyBtns = document.querySelectorAll('.btn-copy-addr');
+  copyBtns.forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const targetId = e.currentTarget.dataset.target;
+      const addressText = document.getElementById(targetId).textContent;
+      
+      try {
+        await navigator.clipboard.writeText(addressText);
+        
+        // Show success animation/label
+        const isHarmony = targetId.includes('harmony');
+        const successLabelId = isHarmony ? 'harmony-copied-msg' : 'ethereum-copied-msg';
+        const label = document.getElementById(successLabelId);
+        
+        if (label) {
+          label.classList.remove('hidden');
+          // Update icon to checkmark temporarily
+          const copyIcon = e.currentTarget.querySelector('i');
+          const originalIcon = copyIcon ? copyIcon.getAttribute('data-lucide') : 'copy';
+          
+          if (copyIcon) {
+            copyIcon.setAttribute('data-lucide', 'check');
+            copyIcon.style.color = '#69f0ae';
+            lucide.createIcons();
+          }
+          
+          setTimeout(() => {
+            label.classList.add('hidden');
+            if (copyIcon) {
+              copyIcon.setAttribute('data-lucide', originalIcon);
+              copyIcon.style.color = '';
+              lucide.createIcons();
+            }
+          }, 2000);
+        }
+      } catch (err) {
+        console.error("Failed to copy address:", err);
+      }
+    });
+  });
+
+  // Fetch tipping configuration addresses dynamically
+  try {
+    const response = await fetch('tipping.json');
+    if (response.ok) {
+      const config = await response.json();
+      
+      // Update Buy Me A Coffee link
+      if (config.buymeacoffee) {
+        const coffeeLink = document.getElementById('btn-coffee-link');
+        if (coffeeLink) coffeeLink.href = config.buymeacoffee;
+      }
+      
+      // Update Harmony address
+      if (config.harmony) {
+        const harmAddress = document.getElementById('harmony-address');
+        if (harmAddress) harmAddress.textContent = config.harmony;
+      }
+      
+      // Update Ethereum address
+      if (config.ethereum) {
+        const ethAddress = document.getElementById('ethereum-address');
+        if (ethAddress) ethAddress.textContent = config.ethereum;
+      }
+    }
+  } catch (err) {
+    console.error("Failed to load tipping configuration:", err);
+    // Use fallback hardcoded values in case of fetch error (safeguard)
+    const fallbackHarmony = "0x18f001a1c22dFA6065D5CD6265eE007CDAc97f33";
+    const fallbackEthereum = "0x18f001a1c22dFA6065D5CD6265eE007CDAc97f33";
+    
+    const harmAddress = document.getElementById('harmony-address');
+    if (harmAddress) harmAddress.textContent = fallbackHarmony;
+    
+    const ethAddress = document.getElementById('ethereum-address');
+    if (ethAddress) ethAddress.textContent = fallbackEthereum;
+  }
 }

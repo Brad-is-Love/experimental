@@ -31,4 +31,4 @@ Format the 3 ideas using the following structure:
 
 ### Idea 2: Same format as idea 1, but use the inverse of the seed elements
 
-### Idea 3: should begin with 'Just forget all that stuff and [the absolute simplest way you can think of to solve the problem, think replacing a remote with a long stick.]'
+### Idea 3: should begin with 'Or you could just forget all that and [the absolute simplest way you can think of to solve the problem, think replacing a remote with a long stick.]' - Idea 3 does not have to use any of the elements. It should be so simple that it can be described in a sentence or two and needs no explanation

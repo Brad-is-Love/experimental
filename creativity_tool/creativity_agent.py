@@ -377,7 +377,7 @@ def main():
     parser.add_argument("--model", default="gemini-2.5-flash", help="Gemini model to use")
     parser.add_argument("--temp", type=float, default=1.0, help="Generation temperature (randomness)")
     parser.add_argument("--prompt-only", action="store_true", help="Print the generated prompt and exit (no API call)")
-    parser.add_argument("--goal", default="make money, starting at $2, in ethical ways that are net positive for humanity", help="Creative goal to achieve")
+    parser.add_argument("--goal", default="", help="Creative goal to achieve")
     
     args = parser.parse_args()
     

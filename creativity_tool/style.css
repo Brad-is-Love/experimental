@@ -1048,3 +1048,160 @@ body {
 .hidden {
   display: none !important;
 }
+
+/* Tipping Modal Styles */
+.tipping-modal-content {
+  max-width: 460px;
+}
+
+.tipping-intro {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.tipping-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--card-border);
+  padding: 4px;
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.tipping-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-family-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: var(--transition-smooth);
+}
+
+.tipping-tab-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.tipping-tab-btn.active {
+  background: var(--accent-purple);
+  color: white;
+  box-shadow: 0 2px 8px var(--accent-purple-glow);
+}
+
+.tipping-panels {
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.tipping-panel {
+  display: none;
+  width: 100%;
+  animation: tippingFadeIn 0.3s ease-in-out forwards;
+}
+
+.tipping-panel.active {
+  display: block;
+}
+
+@keyframes tippingFadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.coffee-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.coffee-note, .crypto-note {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.btn-coffee {
+  background: #FFDD00;
+  color: #000000;
+  border: 1px solid #FFDD00;
+  box-shadow: 0 4px 12px rgba(255, 221, 0, 0.25);
+  font-weight: 700;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+}
+
+.btn-coffee:hover {
+  background: #ffea5c;
+  color: #000000;
+  border-color: #ffea5c;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 221, 0, 0.35);
+}
+
+.address-copy-container {
+  display: flex;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  max-width: 100%;
+  margin: 0.5rem 0;
+}
+
+.address-code {
+  font-family: var(--font-family-code);
+  font-size: 0.82rem;
+  color: var(--accent-blue);
+  word-break: break-all;
+  user-select: all;
+  text-align: left;
+}
+
+.btn-copy-addr {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--card-border);
+  color: var(--text-main);
+  padding: 0.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-copy-addr:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.tip-copied-msg {
+  display: block;
+  font-size: 0.75rem;
+  color: #69f0ae;
+  margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+.icon-heart-glow {
+  filter: drop-shadow(0 0 5px var(--accent-danger));
+}
