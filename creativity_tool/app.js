@@ -1,39 +1,13 @@
-import {
-  OBLIQUE_STRATEGIES,
-  PHYSICAL_OBJECTS,
-  SENSORY_DETAILS,
-  LOCATIONS,
-  ACTIONS
-} from './database.js';
-
-// Fallback sparks if offline or API fails
-const FALLBACK_SPARKS = [
-  {
-    title: "Svalbard Global Seed Vault",
-    extract: "A secure backup facility for the world's crop diversity on the Norwegian island of Spitsbergen in the remote Arctic Svalbard archipelago. It is designed to withstand natural and human disasters.",
-    link: "https://en.wikipedia.org/wiki/Svalbard_Global_Seed_Vault"
-  },
-  {
-    title: "Voyager 1",
-    extract: "A space probe launched by NASA in 1977 to study the outer Solar System and interstellar space. It is the most distant artificial object from Earth, continuing to transmit scientific data.",
-    link: "https://en.wikipedia.org/wiki/Voyager_1"
-  },
-  {
-    title: "Antikythera mechanism",
-    extract: "An ancient Greek hand-powered orrery, described as the oldest example of an analogue computer, used to predict astronomical positions and eclipses decades in advance.",
-    link: "https://en.wikipedia.org/wiki/Antikythera_mechanism"
-  },
-  {
-    title: "Tulip mania",
-    extract: "A period during the Dutch Golden Age when contract prices for some bulbs of the recently introduced and fashionable tulip reached extraordinarily high levels, and then dramatically collapsed.",
-    link: "https://en.wikipedia.org/wiki/Tulip_mania"
-  },
-  {
-    title: "Kintsugi",
-    extract: "The Japanese art of repairing broken pottery by mending the areas of breakage with lacquer dusted or mixed with powdered gold, silver, or platinum. It treats breakage as part of the object's history.",
-    link: "https://en.wikipedia.org/wiki/Kintsugi"
-  }
-];
+// Global DB
+let DB = {
+  OBLIQUE_STRATEGIES: [],
+  PHYSICAL_OBJECTS: [],
+  SENSORY_DETAILS: [],
+  LOCATIONS: [],
+  ACTIONS: [],
+  FALLBACK_SPARKS: [],
+  STOP_WORDS: new Set()
+};
 
 // App State
 const state = {
@@ -66,26 +40,25 @@ const state = {
   promptTemplate: ''
 };
 
-// Common English stop words to filter out when extracting Wikipedia spark words
-const STOP_WORDS = new Set([
-  'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'arent', 'as', 'at',
-  'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', 'cant', 'cannot',
-  'could', 'couldnt', 'did', 'didnt', 'do', 'does', 'doesnt', 'doing', 'dont', 'down', 'during', 'each',
-  'few', 'for', 'from', 'further', 'had', 'hadnt', 'has', 'hasnt', 'have', 'havent', 'having', 'he', 'hed',
-  'hell', 'hes', 'her', 'here', 'heres', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'hows', 'i',
-  'id', 'ill', 'im', 'ive', 'if', 'in', 'into', 'is', 'isnt', 'it', 'its', 'itself', 'lets', 'me', 'more',
-  'most', 'mustnt', 'my', 'myself', 'no', 'nor', 'not', 'of', 'off', 'on', 'once', 'only', 'or', 'other',
-  'ought', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 'same', 'shant', 'she', 'shed', 'shell', 'shes',
-  'should', 'shouldnt', 'so', 'some', 'such', 'than', 'that', 'thats', 'the', 'their', 'theirs', 'them',
-  'themselves', 'then', 'there', 'theres', 'these', 'they', 'theyd', 'theyll', 'theyre', 'theyve', 'this',
-  'those', 'through', 'to', 'too', 'under', 'until', 'up', 'very', 'was', 'wasnt', 'we', 'wed', 'well',
-  'were', 'weve', 'werent', 'what', 'whats', 'when', 'whens', 'where', 'wheres', 'which', 'while', 'who',
-  'whos', 'whom', 'why', 'whys', 'with', 'wont', 'would', 'wouldnt', 'you', 'youd', 'youll', 'youre', 'youve',
-  'your', 'yours', 'yourself', 'yourselves', 'species', 'family', 'known', 'first', 'called', 'found', 'often'
-]);
-
 // Initialize Application
 document.addEventListener('DOMContentLoaded', async () => {
+  // Load Database
+  try {
+    const dbRes = await fetch('database.json');
+    if (dbRes.ok) {
+      const dbData = await dbRes.json();
+      DB.OBLIQUE_STRATEGIES = dbData.OBLIQUE_STRATEGIES || [];
+      DB.PHYSICAL_OBJECTS = dbData.PHYSICAL_OBJECTS || [];
+      DB.SENSORY_DETAILS = dbData.SENSORY_DETAILS || [];
+      DB.LOCATIONS = dbData.LOCATIONS || [];
+      DB.ACTIONS = dbData.ACTIONS || [];
+      DB.FALLBACK_SPARKS = dbData.FALLBACK_SPARKS || [];
+      DB.STOP_WORDS = new Set(dbData.STOP_WORDS || []);
+    }
+  } catch (err) {
+    console.error("Failed to load database.json", err);
+  }
+
   // Initialize Lucide Icons
   lucide.createIcons();
   
@@ -347,11 +320,13 @@ async function fetchWikipediaSpark() {
   } catch (err) {
     console.error("Wikipedia fetch failed, using fallback.", err);
     // Grab a random fallback
-    const fallback = FALLBACK_SPARKS[Math.floor(Math.random() * FALLBACK_SPARKS.length)];
-    state.wiki.title = fallback.title;
-    state.wiki.extract = fallback.extract;
-    state.wiki.link = fallback.link;
-    state.wiki.words = extractSparkWords(state.wiki.extract);
+    if (DB.FALLBACK_SPARKS.length > 0) {
+      const fallback = DB.FALLBACK_SPARKS[Math.floor(Math.random() * DB.FALLBACK_SPARKS.length)];
+      state.wiki.title = fallback.title;
+      state.wiki.extract = fallback.extract;
+      state.wiki.link = fallback.link;
+      state.wiki.words = extractSparkWords(state.wiki.extract);
+    }
   } finally {
     // Render
     document.getElementById('wiki-title').textContent = state.wiki.title;
@@ -381,7 +356,7 @@ function extractSparkWords(text) {
   const rawWords = cleanText.split(/\s+/);
   
   // Filter out stop words, empty spaces, and words under 5 letters (to get meatier words)
-  const candidateWords = rawWords.filter(w => w.length >= 5 && !STOP_WORDS.has(w));
+  const candidateWords = rawWords.filter(w => w.length >= 5 && !DB.STOP_WORDS.has(w));
   
   // Get unique candidates
   const uniqueCandidates = Array.from(new Set(candidateWords));
@@ -405,7 +380,8 @@ function extractSparkWords(text) {
 
 // Oblique Heuristic Roller
 function rollObliqueStrategy() {
-  const strategy = OBLIQUE_STRATEGIES[Math.floor(Math.random() * OBLIQUE_STRATEGIES.length)];
+  if (DB.OBLIQUE_STRATEGIES.length === 0) return;
+  const strategy = DB.OBLIQUE_STRATEGIES[Math.floor(Math.random() * DB.OBLIQUE_STRATEGIES.length)];
   state.oblique = strategy;
   document.getElementById('oblique-text').textContent = `"${strategy}"`;
   updatePrompt();
@@ -413,8 +389,9 @@ function rollObliqueStrategy() {
 
 // Physical Spark Roller
 function rollPhysicalInteraction() {
-  const obj = PHYSICAL_OBJECTS[Math.floor(Math.random() * PHYSICAL_OBJECTS.length)];
-  const act = ACTIONS[Math.floor(Math.random() * ACTIONS.length)];
+  if (DB.PHYSICAL_OBJECTS.length === 0 || DB.ACTIONS.length === 0) return;
+  const obj = DB.PHYSICAL_OBJECTS[Math.floor(Math.random() * DB.PHYSICAL_OBJECTS.length)];
+  const act = DB.ACTIONS[Math.floor(Math.random() * DB.ACTIONS.length)];
   
   state.physical.object = obj;
   state.physical.action = act;
@@ -426,8 +403,9 @@ function rollPhysicalInteraction() {
 
 // Sensory Context Roller
 function rollSensoryContext() {
-  const detail = SENSORY_DETAILS[Math.floor(Math.random() * SENSORY_DETAILS.length)];
-  const location = LOCATIONS[Math.floor(Math.random() * LOCATIONS.length)];
+  if (DB.SENSORY_DETAILS.length === 0 || DB.LOCATIONS.length === 0) return;
+  const detail = DB.SENSORY_DETAILS[Math.floor(Math.random() * DB.SENSORY_DETAILS.length)];
+  const location = DB.LOCATIONS[Math.floor(Math.random() * DB.LOCATIONS.length)];
   
   state.sensory.detail = detail;
   state.sensory.location = location;
