@@ -54,6 +54,7 @@ When you are initialized in this repository, you **MUST** follow these steps:
 | ⚡ [Lateral Ideation](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/lateral_ideation.md) | Runs the `creativity_tool` CLI to generate non-obvious business/project concepts. | When brainstorms hit a wall or looking for new revenue opportunities. |
 | 🔍 [Researcher](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/researcher.md) | Conducts audience audits, competitor analysis, and cost estimations. | After ideating a list of options to select the most viable one. |
 | 📣 [Marketer](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/marketer.md) | Performs copy creation, waitlist validation, and community launch strategies. | During pre-launch and launch validation phases to secure initial customers. |
+| 🕵️ [Reddit Researcher](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/reddit_researcher.md) | Uses the reddit_researcher script to find human struggles and pain points. | When needing to discover new problems to solve to provide genuine value to people. |
 
 ---
 
