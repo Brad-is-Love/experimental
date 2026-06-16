@@ -21,7 +21,8 @@ repository-root/
 │       ├── director.md        # Coordination, task scheduling, and priority setting
 │       ├── lateral_ideation.md# Brainstorming via the Synaptic Sparks CLI
 │       ├── researcher.md      # Idea viability, pricing, and cost analysis
-│       └── marketer.md        # Outreach, copy-writing, and validation strategies
+│       ├── marketer.md        # Outreach, copy-writing, and validation strategies
+│       └── risk_analyst.md    # Risk auditing for safety, systems, and capital
 └── creativity_tool/           # Synaptic Sparks // AI Lateral Creativity Engine
     ├── creativity_agent.py    # Zero-dependency Python CLI tool
     ├── index.html             # Beautiful glassmorphic UI container
@@ -55,6 +56,7 @@ When you are initialized in this repository, you **MUST** follow these steps:
 | 🔍 [Researcher](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/researcher.md) | Conducts audience audits, competitor analysis, and cost estimations. | After ideating a list of options to select the most viable one. |
 | 📣 [Marketer](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/marketer.md) | Performs copy creation, waitlist validation, and community launch strategies. | During pre-launch and launch validation phases to secure initial customers. |
 | 🕵️ [Reddit Researcher](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/reddit_researcher.md) | Uses the reddit_researcher script to find human struggles and pain points. | When needing to discover new problems to solve to provide genuine value to people. |
+| ⚖️ [Risk Analyst](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/risk_analyst.md) | Conducts audits on risks to humans, systems, and capital. | Prior to approving any new feature, architecture change, or deployment. |
 
 ---
 

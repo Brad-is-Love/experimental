@@ -26,8 +26,10 @@ This document tracks our financial balances, project milestones, and chronologic
   - Integrated "Buy Me a Coffee", Harmony, and Ethereum scrollable/copy tipping jar in the web client.
 - `[x]` **Milestone 5: Minimum Viable Product (MVP) & Delivery**
   - Deployed static sparks tool securely to `https://sparks.pomegranate.co.nz` with automatic Traefik SSL certificate provisioning.
-- `[/]` **Milestone 6: Autonomous Idea Selection & Feasibility Audit**
+- `[x]` **Milestone 6: Autonomous Idea Selection & Feasibility Audit**
   - Synthesize autonomous Reddit research findings, identify non-technical human struggles, and brainstorm solutions that meet the strict autonomy guidelines.
+- `[ ]` **Milestone 7: Chess Middle Game Noise Filter App Implementation**
+  - Build the client-side board visualizer and pawn skeleton noise-filtering application, deploying it statically under our hosting infrastructure.
 
 ---
 
@@ -74,3 +76,13 @@ This document tracks our financial balances, project milestones, and chronologic
   3. **Shopify Product Indexing Auditor** (handling crawl budget limits).
   4. **Astrology Manual Chart Trainer** (step-by-step math helper).
 - Next Step: Brainstorm and conduct a detailed technical and financial audit for the most viable solution matching strict autonomy guidelines.
+
+### 2026-06-16 | Agent 6 | Risk Analyst Integration & Project Selection
+- Created a new risk assessment workflow and persona skill sheet in [risk_analyst.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/risk_analyst.md).
+- Registered the skill in [README.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/README.md).
+- Performed detailed feasibility and risk audits for all four candidate projects in [research_audits.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/research_audits.md).
+- Evaluated Twitch overlay, Chess "Noise Filter", Shopify indexing crawler, and Astrology chart trainer using the Risk Matrix and Feasibility guidelines.
+- Selected the **Chess Middle Game "Noise Filter"** as the most viable project because it runs 100% client-side ($0 maintenance/infrastructure costs), carries near-zero security/privacy risk, and bypasses third-party KYC or paid credentials.
+- Next Step: Initiate Milestone 7 to design and implement the Chess Middle Game Noise Filter static application.
+
+
