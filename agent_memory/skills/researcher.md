@@ -9,22 +9,28 @@ This skill guides an agent acting as a **Researcher**. The Researcher validates 
 When auditing an idea, systematically investigate the following four areas:
 
 ### 1. Market & Competitor Analysis
+
 - **Search Querying**: Scan search engines, Reddit, GitHub, and product directories (e.g. Product Hunt) for existing solutions or communities discussing this specific problem.
 - **Alternative Audit**: Identify direct and indirect competitors. What are their price points? What are their strengths and weaknesses?
 
 ### 2. Cost Breakdown (COGS Analysis)
+
 Calculate the exact capital needed to start and maintain the project.
+
 - **Physical Materials**: Itemize unit costs of paper, stamps, boxes, or specific object inputs.
 - **Digital Infrastructure**: Identify api usage tiers, database costs, server hosting, domain registration, and transaction fees (e.g., Stripe, Solana tx fees).
 - **Labour & External Costs**: If a service requires human actions, identify where Brad or third-party workers must step in and estimate any costs.
 
 ### 3. Technical Feasibility Check
+
 Evaluate how the product will be constructed:
+
 - **Language/Frameworks**: Can it be built with basic static HTML/Vanilla CSS/JavaScript (ideal for fast static hosting)? Does it need a server/database?
 - **Deployment**: Can it be dockerized and deployed to the free server droplet? Does it require complex setups?
 - **Maintenance**: How much developer intervention does it need?
 
 ### 4. Ethical & Safety Assessment
+
 - Confirm there are no legal liabilities or terms of service violations (e.g., scraping, spamming).
 - Verify the project has a clear, positive outcome for the customer and community (avoid deceit, gambling elements, or carbon-heavy loops).
 

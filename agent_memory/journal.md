@@ -36,12 +36,14 @@ This document tracks our financial balances, project milestones, and chronologic
 ## 📖 Chronological Log
 
 ### 2026-06-11 | Agent 1 | Initialization & Creativity Tool Setup
+
 - Created the **Synaptic Sparks (AI Lateral Creativity Engine)** in [creativity_tool/](file:///Users/bradleysandilands/Documents/coding/experimental/creativity_tool).
 - Implemented:
   - Beautiful glassmorphic Web UI containing Wikipedia seed fetchers, Oblique Strategies, physical and sensory seeds, and a direct Gemini API call container.
   - Command Line Interface agent in Python ([creativity_agent.py](file:///Users/bradleysandilands/Documents/coding/experimental/creativity_tool/creativity_agent.py)) that does not require any third-party library dependencies (pure standard-library `urllib` for API requests).
 
 ### 2026-06-11 | Agent 2 | Shared Memory Framework & CLI Integration
+
 - Created the `agent_memory/` folder, introducing a unified protocol for future agents.
 - Defined core agent roles/skills:
   - [director.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/director.md) (Coordination and decision-making)
@@ -52,6 +54,7 @@ This document tracks our financial balances, project milestones, and chronologic
 - Extracted the base prompt template into a shared [prompt_template.txt](file:///Users/bradleysandilands/Documents/coding/experimental/creativity_tool/prompt_template.txt) file.
 
 ### 2026-06-12 | Agent 3 | Tipping Integration & Docker Registry Refactoring
+
 - Redesigned sidebar layout: separated and elevated "Project Goal", cleared default prompt text, replaced "Target Investment" dropdown with text-input "Budget" field for custom inputs (e.g. "$5", "10 hours").
 - Integrated tipping modal with "Buy Me a Coffee", Harmony (ONE), and Ethereum (ETH) tabs.
 - Created [tipping.json](file:///Users/bradleysandilands/Documents/coding/experimental/creativity_tool/tipping.json) to isolate public addresses and prevent server `.env` private key leaks.
@@ -62,12 +65,14 @@ This document tracks our financial balances, project milestones, and chronologic
   - Pushed infrastructure changes, verifying the live site `https://sparks.pomegranate.co.nz` serving successfully from the container registry image.
 
 ### 2026-06-15 | Agent 4 | Strategic Pivot to Strict Autonomy
+
 - Acknowledged that the current human-in-the-loop setup is a bottleneck and counter to testing the limits of AI autonomy.
 - Drafted `autonomy_plan.md` in the root repository to dictate the shift toward 100% autonomous operation.
 - Updated `agent_memory/skills/director.md` to deprecate the "Human Hand-off Protocol" and introduce the "Autonomous Execution Protocol."
 - Updated `agent_memory/README.md` to enforce the strict autonomy mandate (crypto-native infrastructure, permissionless APIs, and no physical actions).
 
 ### 2026-06-16 | Agent 5 | Reddit Research Synthesis & Strategic Clean-up
+
 - Deleted `friend_questionnaire.md` per Brad's instructions (strategy updates already address those questions).
 - Audited the results of the autonomous Reddit researcher tool in `agent_memory/research_findings.md`.
 - Identified 4 promising digital-only opportunities for autonomous development:
@@ -78,6 +83,7 @@ This document tracks our financial balances, project milestones, and chronologic
 - Next Step: Brainstorm and conduct a detailed technical and financial audit for the most viable solution matching strict autonomy guidelines.
 
 ### 2026-06-16 | Agent 6 | Risk Analyst Integration & Project Selection
+
 - Created a new risk assessment workflow and persona skill sheet in [risk_analyst.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/risk_analyst.md).
 - Registered the skill in [README.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/README.md).
 - Performed detailed feasibility and risk audits for all four candidate projects in [research_audits.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/research_audits.md).
@@ -85,4 +91,8 @@ This document tracks our financial balances, project milestones, and chronologic
 - Selected the **Chess Middle Game "Noise Filter"** as the most viable project because it runs 100% client-side ($0 maintenance/infrastructure costs), carries near-zero security/privacy risk, and bypasses third-party KYC or paid credentials.
 - Next Step: Initiate Milestone 7 to design and implement the Chess Middle Game Noise Filter static application.
 
+### 2026-06-16 | Agent 7 | Chess Middle Game Noise Filter App Implementation
 
+- Created the `chess_tool/` directory to house the new static web application.
+- Wrote a detailed Product Specification in `chess_tool/spec.md` outlining the value proposition, functional and non-functional requirements, UI/UX design, and monetization integration.
+- Next Step: Begin implementing the static client-side web application for the Chess Middle Game Noise Filter based on the specification.

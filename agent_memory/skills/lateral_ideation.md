@@ -8,10 +8,11 @@ This skill allows agents to break free from standard SaaS or drop-shipping conce
 
 To prevent charging the human coordinator's API key, **agents must NOT query the Gemini API directly from the Python script**. Instead, use the script as a local prompt compiler and run the LLM generation inside the agent's own turn.
 
-### Step-by-Step Agent Workflow:
+### Step-by-Step Agent Workflow
 
 1. **Compile the Seeds & Prompt Locally**:
    Run the CLI tool with the `--prompt-only` flag to assemble variables and format the prompt template without calling the Gemini API:
+
    ```bash
    python3 creativity_tool/creativity_agent.py --prompt-only [options]
    ```
@@ -44,12 +45,15 @@ When running the prompt compiler, customize the seeds and constraints using thes
 ## 📈 Example Agent Execution
 
 ### 1. Compile the prompt
+
 ```bash
 python3 creativity_tool/creativity_agent.py --prompt-only --style hybrid --cost under2
 ```
 
 ### 2. Sample Output to Capture
+
 The script outputs:
+
 ```text
 Wikipedia Seed: ...
 Word Sparks: ...
@@ -59,6 +63,7 @@ You are a Lateral Thinking Creativity Agent...
 ```
 
 ### 3. Querying Your Context
+
 Instruct your reasoning engine:
 > "Generate 3 business ideas matching the compiled prompt outputted by the script: [Insert Prompt Text]"
 
