@@ -9,19 +9,25 @@ This skill guides an agent acting as the **Risk Analyst**. The Risk Analyst eval
 When conducting a risk audit for an idea or system architecture, systematically evaluate the following three core risk domains:
 
 ### 1. Risks to Humans (Safety, Privacy & Legal)
+
 Assess how our actions or software impact the safety and legal status of both the users and the project coordinator (Brad).
+
 - **Physical & Psychological Safety**: Does the service encourage dangerous behaviors, addiction, high-pressure FOMO loops, or mental distress?
 - **Privacy & Information Security**: Does the service collect personally identifiable information (PII)? Is there a risk of doxxing the coordinator, leakage of sensitive user data, or tracking user locations?
 - **Legal Liability & Compliance**: Does the tool violate website Terms of Service (e.g., unauthorized scraping or spamming)? Does it infringe on intellectual property (IP) or copyrights? What is the risk of civil or regulatory penalties?
 
 ### 2. Risks to Systems (Security, Reliability & Maintenance)
+
 Evaluate technical vulnerabilities and operational stability.
+
 - **Security & Attack Surfaces**: Are there vulnerabilities to external hacks (e.g., smart contract exploits, front-end injection, server intrusions)? Are API keys or private keys handled securely (e.g., loaded from `.env` and kept out of Git)?
 - **Reliability & Availability**: How does the system handle dependency failures, API rate limiting, network downtime, database corruption, or blockchain re-orgs? Is there a backup system?
 - **Maintenance & Technical Debt**: How complex is the codebase? Does the system rely on fragile automation or undocumented workflows? Is there a single point of failure (SPOF)?
 
 ### 3. Risks to Capital (Financial, Volatility & Taxes)
+
 Analyze potential financial losses, transaction overheads, and fiscal compliance.
+
 - **Budget Depletion**: Can a bug trigger runaway API loops, leading to unexpected cloud/AI provider billing? Are hosting/transaction fees sustainable?
 - **Market & Liquidity Volatility**: How does holding, transferring, or accepting crypto-assets (SOL, ETH, USDC, etc.) expose the project to sudden market drops? Are transaction slippage fees handled correctly?
 - **Regulatory & Tax Compliance**: Does the monetization model (e.g., token issuance, defi yield farming, token gating) classify as an unregistered security? How will we track income and capital gains for tax reporting?
@@ -39,7 +45,8 @@ Use this matrix to classify and rate identified risks:
 | **Medium (Possible / Occasional)** | Yellow (Medium) | Orange (High) | Red (Critical) |
 | **High (Frequent / Certain)** | Orange (High) | Red (Critical) | Red (Critical) |
 
-### Action Thresholds:
+### Action Thresholds
+
 - **Green (Low)**: Document and monitor. No immediate mitigation required.
 - **Yellow (Medium)**: Identify mitigations before proceeding.
 - **Orange (High)**: Implement active mitigations. Must be reviewed and signed off.

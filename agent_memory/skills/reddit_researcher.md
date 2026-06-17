@@ -1,12 +1,14 @@
 # Reddit Researcher Skill
 
 ## Name and Intent
+
 **Reddit Researcher**
 The intent of this skill is to autonomously discover and document genuine human struggles, problems, and pain points by analyzing discussions on Reddit. The primary goal is to find opportunities where we can create digital tools, resources, or material that genuinely help people.
 
 **Important Constraint:** Research must strictly exclude coding, programming, or AI-related topics. Focus on human experiences, daily life, niche hobbies, relationships, personal finance, health, and other real-world struggles.
 
 ## Prerequisites
+
 - Python 3 environment.
 - The `research_tool/reddit_researcher.py` script.
 - Internet access for unauthenticated scraping.

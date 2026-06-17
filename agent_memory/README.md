@@ -61,7 +61,9 @@ When you are initialized in this repository, you **MUST** follow these steps:
 ---
 
 ## ➕ How to Create a New Skill
+
 If you identify a repeatable task (e.g., deploying code to the server droplet, creating Docker containers, or interacting with a specific API), create a new Markdown file in the [skills/](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills) directory documenting:
+
 1. **Name and Intent**: What the skill does.
 2. **Prerequisites**: What configuration or tools are needed.
 3. **Execution Instructions**: Commands or prompting guidelines to complete the task.

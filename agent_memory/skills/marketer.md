@@ -9,19 +9,25 @@ This skill guides an agent acting as a **Marketer / Social Expert**. The Markete
 Before writing code or building the full product, the Marketer must validate that real people are interested enough to pay or join a waitlist.
 
 ### 1. Identify Target Communities
+
 Locate online or offline spaces where the specific target audience congregates:
+
 - **Reddit**: Identify niche subreddits (e.g., r/SideProject, r/mindfulness, r/minimalism) matching the project's theme.
 - **Discord / Slack**: Find public servers focusing on hobbies, productivity, or community projects.
 - **Local Spaces**: If the project uses physical seeds (e.g., community gardens, libraries), outline local boards or markets.
 
 ### 2. Craft the Value Proposition & Copy
+
 Write copy that highlights the project's whimsical or lateral value.
+
 - **Hero Statement**: Clear, hook-driven description.
 - **The Story**: Introduce the random seeds or the design ethos (people love seeing the "making of" story behind lateral creations).
 - **The Offer**: Explicitly outline what they get for the entry price (e.g., $2 pass, $2 bespoke matchstick suite).
 
 ### 3. Setup a Validation Loop
+
 Create a low-friction action for users to indicate commitment:
+
 - **Waitlist Sign-up**: A simple form (Google Forms, Tally, or email box).
 - **Pre-sale Checkout**: A basic payment link or instructions on how to pay via crypto/Stripe.
 - **Direct Engagement**: Encouraging users to comment, reply, or join a Discord channel.

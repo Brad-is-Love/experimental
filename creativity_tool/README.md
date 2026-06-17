@@ -3,6 +3,7 @@
 Synaptic Sparks is a dual-mode creative ideation framework designed to help you bypass generic digital ideas (like SaaS templates, simple wrappers, and drop-shipping) by injecting structured randomness, lateral thinking, and physical constraints into LLM prompts.
 
 It gathers seed variables from:
+
 1. **Wikipedia Spark**: Fetching a random Wikipedia summary and extracting noun/verb sparks to direct your thematic anchors.
 2. **Oblique Strategy**: Eno & Schmidt heuristics designed to disrupt linear/logical blockages.
 3. **Physical Spark**: Directing you to incorporate a random everyday physical object and a human action.
@@ -30,18 +31,22 @@ The web client offers a full-featured visual dashboard where you can roll seeds,
 
 ### How to Run Locally
 
-You can launch the web app instantly using any simple HTTP server. 
+You can launch the web app instantly using any simple HTTP server.
 
 **Option A: Python (Built-in)**
+
 ```bash
 python3 -m http.server 8000
 ```
+
 Then visit: `http://localhost:8000/creativity_tool/`
 
 **Option B: Node/NPM (npx serve)**
+
 ```bash
 npx serve
 ```
+
 Then visit: `http://localhost:3000/creativity_tool/` (or the port specified by serve).
 
 ---
@@ -53,6 +58,7 @@ For developers or automated agents that want to generate creative seeds and prom
 ### Running the CLI Script
 
 Make sure you make the script executable (or run with python3):
+
 ```bash
 python3 creativity_tool/creativity_agent.py
 ```
@@ -67,11 +73,13 @@ python3 creativity_tool/creativity_agent.py
 - `--context "CONTEXT"`: Provide additional manual context (e.g. your physical surroundings, current goals).
 
 #### Example: Prompt-only Generation
+
 ```bash
 python3 creativity_tool/creativity_agent.py --prompt-only --style hybrid --cost under2
 ```
 
 #### Example: Direct API Generation
+
 ```bash
 export GEMINI_API_KEY="AIzaSyYourKeyHere..."
 python3 creativity_tool/creativity_agent.py --style physical --whimsy absurd
