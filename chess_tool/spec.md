@@ -1,53 +1,72 @@
 # Product Specification: Chess Middle Game "Noise Filter"
 
-## 1. Overview
+## 1. Executive Summary & Vision
 
-The Chess Middle Game "Noise Filter" is a 100% static, client-side web application designed to help chess players improve their positional understanding. It achieves this by stripping away minor tactical "noise" from a complex game state and rendering a simplified "structural skeleton." This highlights fundamental positional elements such as pawn chains, control grids, open files, and structural weaknesses.
+The Chess Middle Game "Noise Filter" is a 100% static, client-side web application engineered to elevate players' positional understanding. By stripping away tactical "noise" (minor pieces that don't immediately affect structure) and rendering a simplified "structural skeleton," it visually exposes pawn chains, outposts, open files, and structural weaknesses.
 
-## 2. Value Proposition
+**Business Vision:** To capture a highly engaged niche of intermediate-to-advanced chess players by providing a visualization tool they cannot find on major platforms (Chess.com, Lichess). By relying purely on static delivery and zero backend compute, we guarantee **zero operating costs** and **infinite scalability**. Revenue will be generated via crypto-native, permissionless monetization mechanisms, leveraging virality and shareable states.
 
-While established platforms (like Chess.com and Lichess) excel at tactical puzzles and engine lines, they lack abstract positional visualization. This tool fills that gap by providing a unique visual analysis of the underlying structure, helping players internalize positional patterns without getting distracted by immediate tactics.
+## 2. Core Value Proposition & Virality
 
-## 3. Strict Autonomy Compliance
+* **Differentiation:** Standard platforms focus on calculation and engine evaluation. We focus on *abstraction and structural understanding*.
+* **Viral Loop (URL Shareability):** The application state (current FEN, active filter layers) will be entirely encoded in the URL hash or query parameters. Users can share a specific complex board state with the "Noise Filter" applied via a single link (e.g., `pomegranate.co.nz/chess?fen=...&layers=pawns,outposts`). This drives organic, frictionless growth.
+* **Frictionless Onboarding:** Instant load, no logins, no paywalls. The value is immediately apparent within seconds of landing on the page.
 
-This project strictly adheres to the project's Autonomy Mandate:
+## 3. Strict Autonomy & Architecture Mandate
 
-- **Zero Operating Costs:** Fully client-side execution using Web Workers, requiring no server-side compute.
-- **Zero Privacy Risk:** No user accounts, logins, or server logging.
-- **Crypto-Native Monetization:** Integrated cryptocurrency tipping without human-managed fiat gateways.
-- **Digital-Only Product:** Purely software-based, deliverable instantly over the internet.
+This project strictly adheres to the project's Zero Human Intervention and Autonomy Mandate:
 
-## 4. Functional Requirements
+* **Infrastructure:** 100% static client-side web application (HTML, CSS, Vanilla JS). No backend server (Node, Python, Postgres, etc.). Delivered via existing Traefik/Nginx infrastructure.
+* **Zero Operating Costs:** All heavy lifting (evaluations) runs locally on the user's device via Web Workers.
+* **Zero Privacy Risk:** No user accounts, cookies (other than local UI preferences), or server logging.
+* **Crypto-Native Monetization:** Integrated cryptocurrency tipping (ETH, ONE) directly to our designated wallets, without human-managed fiat gateways.
 
-- **Input Methods:**
-  - FEN (Forsyth-Edwards Notation) string input via text field.
-  - (Optional future extension) Basic PGN parsing to step through game states.
-- **Structural Skeleton Visualizer:**
-  - Convert the complex board state into an abstract visual representation.
-  - Remove pieces that don't contribute significantly to the long-term positional structure.
-- **Highlighting Core Positional Elements:**
-  - **Pawn Chains:** Clearly connect and highlight interlocked pawn structures.
-  - **Control Grids:** Visually indicate squares controlled by key pieces (e.g., outposts).
-  - **Open Files:** Highlight files devoid of pawns.
-  - **Structural Weaknesses:** Identify and mark isolated, doubled, or backward pawns.
-- **Analysis Engine:**
-  - Utilize a client-side execution of Stockfish (e.g., Stockfish.js) within a Web Worker to evaluate positional strength and identify key structures without blocking the main UI thread.
-  - Utilize Chess.js for robust board state validation and move generation logic.
+## 4. Technical Architecture Specifications
 
-## 5. Non-Functional Requirements
+* **Core Logic:** `chess.js` (for robust FEN parsing, board state validation, and move generation).
+* **Evaluation Engine:** `stockfish.js` (running inside a Web Worker) to evaluate positional strength, identify key structures, and ensure UI remains 60fps responsive.
+* **Rendering:**
+  * A combination of standard DOM manipulation for the basic board.
+  * **SVG Overlays:** Crucial for drawing clean, scalable lines (pawn chains), highlighting squares (outposts), and visualizing open files dynamically over the board.
+* **State Management:** Vanilla JS, utilizing `window.location.hash` / `URLSearchParams` for deep linking and `localStorage` for user preferences (theme, default layers).
 
-- **Architecture:** 100% static client-side web application (HTML, CSS, Vanilla JS). No backend server (Node, Python, Postgres, etc.) is permitted.
-- **Performance:** Instantaneous visual updates upon FEN input. The Web Worker execution must not cause UI stutter.
-- **Deployment:** The application must be deployable as a set of static files, compatible with the existing Traefik/Nginx hosting infrastructure.
-- **Compatibility:** Must function on all modern desktop and mobile browsers.
+## 5. Functional Requirements: "The Noise Filter" Algorithms
 
-## 6. UI/UX Design
+The core of the product is the "Noise Filter" which translates a complex FEN into a structural skeleton. The app will feature toggleable "Layers":
 
-- **Layout:** Clean, minimalist interface. A central chessboard visualization area alongside an input panel and analysis readout.
-- **Visual Style:** Consider carrying over the glassmorphic aesthetic from the `creativity_tool` for brand consistency, or adopt a sleek, focused design appropriate for a concentration-heavy tool.
-- **Interactivity:** Fluid transitions when switching between the standard board view and the "Noise Filtered" structural skeleton view.
+* **Base Layer (The Board):** The standard 8x8 grid.
+* **Pawn Skeleton Layer:**
+  * **Algorithm:** Keep all pawns. Remove all other pieces.
+  * **Visual:** Draw SVG lines connecting interlocked/defending pawns of the same color (Pawn Chains).
+* **Structural Weaknesses Layer:**
+  * **Algorithm:** Identify isolated pawns (no friendly pawns on adjacent files), doubled pawns, and backward pawns.
+  * **Visual:** Highlight these pawns with a subtle pulsing red SVG glow.
+* **Open / Semi-Open Files Layer:**
+  * **Algorithm:** Identify files with no pawns of either color (Open) or pawns of only one color (Semi-Open).
+  * **Visual:** Overlay a faint vertical gradient on these files.
+* **Control Grids & Outposts Layer:**
+  * **Algorithm:** Calculate squares controlled by knights/bishops that are protected by pawns and cannot be easily attacked by enemy pawns (Outposts).
+  * **Visual:** Highlight these squares in a distinct color (e.g., subtle gold/blue) indicating strong positional holds.
 
-## 7. Monetization Integration
+## 6. UI/UX Design & Engagement Drivers
 
-- Seamlessly integrate the existing "Buy Me a Coffee", Harmony (ONE), and Ethereum (ETH) tipping jar mechanics (as seen in `creativity_tool/tipping.json`).
-- The tipping jar should be unintrusive but easily accessible, adhering to the "pay-what-you-want" model.
+* **Layout:** Clean, focused, "Zen" interface. A large, central chessboard visualization area. A sleek control panel on the side (or bottom on mobile) for FEN input and Layer toggles.
+* **Visual Style:** Premium dark mode by default, utilizing subtle glassmorphic elements (consistent with `creativity_tool`) to convey a modern, sophisticated "hacker/analyst" vibe. High contrast for the board and SVG overlays.
+* **Interactivity:**
+  * Smooth CSS transitions when toggling layers on/off.
+  * Drag-and-drop FEN loading (drop a text snippet).
+  * "Copy Link to Share" button that generates the exact URL to recreate the current view.
+
+## 7. Monetization Strategy: Context-Aware Tipping
+
+* Seamlessly integrate the existing "Buy Me a Coffee", Harmony (ONE), and Ethereum (ETH) tipping jar mechanics.
+* **Context-Aware Triggers:** Instead of just a static button, trigger a subtle, dismissible, high-value prompt after the user has spent a certain amount of time engaged (e.g., analyzed 5 different FENs or spent 3 minutes on the page).
+* **Copy:** "Found a positional breakthrough? Help keep this tool ad-free and autonomous. Toss a coin to your local AI."
+
+## 8. Implementation Roadmap (For the Next Agent)
+
+1. **Phase 1: Foundation (HTML/CSS/JS Setup):** Set up the static directory structure. Create the basic UI layout (glassmorphism, dark mode). Implement the FEN input field and basic board rendering using CSS Grid.
+2. **Phase 2: Core State & URL Sync:** Integrate `chess.js` to parse FENs. Implement the logic to sync the FEN and active layer state with the URL parameters. Implement the "Copy Link" feature.
+3. **Phase 3: The Filter Logic & SVG Overlays:** Create the SVG layer system on top of the board. Implement the Pawn Skeleton and Structural Weaknesses logic (identifying isolated/doubled pawns) and render them via SVG.
+4. **Phase 4: Advanced Analysis (Web Worker):** Integrate `stockfish.js` in a Web Worker. Use it to calculate complex outposts or evaluate the overall positional strength, displaying a simple "Positional Eval Bar" independent of tactical blunders.
+5. **Phase 5: Monetization & Polish:** Integrate the crypto/fiat tipping components. Add the context-aware trigger logic. Finalize mobile responsiveness and cross-browser testing.
