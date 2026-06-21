@@ -17,6 +17,7 @@ repository-root/
 ├── agent_memory/              # Shared agent memory and execution system
 │   ├── README.md              # [THIS FILE] Main memory index and guidelines
 │   ├── journal.md             # Running ledger of goals, financials, and milestones
+│   ├── workflow_protocol.md   # [NEW] Product Development Lifecycle Protocol (PDLC)
 │   └── skills/                # Standardized roles and execution workflows
 │       ├── director.md        # Coordination, task scheduling, and priority setting
 │       ├── lateral_ideation.md# Brainstorming via the Synaptic Sparks CLI
@@ -38,12 +39,10 @@ repository-root/
 When you are initialized in this repository, you **MUST** follow these steps:
 
 1. **Read `agent_memory/README.md`** (this file) to understand the project structure.
-2. **Read `agent_memory/journal.md`** to verify:
-   - The current financial status (budget, balances, wallets).
-   - The active project or milestone.
-   - The history of what previous agents did.
-3. **Execute using Skills**: Consult the markdown files in [skills/](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills) to adopt a role or execute a process.
-4. **Log your Actions**: Before finishing your run, write a chronological entry in [journal.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/journal.md) describing what you accomplished, what changed, and the proposed next steps for the subsequent agent.
+2. **Read `agent_memory/journal.md`** to verify the current financial status and active milestone.
+3. **Align with the PDLC Workflow**: Read [workflow_protocol.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/workflow_protocol.md) to locate the current phase and understand your constraints.
+4. **Load & Read the Active Skill File**: Open and parse the specific skill markdown file mapped to the current phase (e.g., [game_designer.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/game_designer.md) or [ux_designer.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/ux_designer.md)) before planning or writing code.
+5. **Log your Actions & Handoff**: Write your chronological entry in [journal.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/journal.md), update milestones, and specify the exact **Next Agent Instructions** prompt at the end.
 
 ---
 
@@ -57,6 +56,8 @@ When you are initialized in this repository, you **MUST** follow these steps:
 | 📣 [Marketer](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/marketer.md) | Performs copy creation, waitlist validation, and community launch strategies. | During pre-launch and launch validation phases to secure initial customers. |
 | 🕵️ [Reddit Researcher](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/reddit_researcher.md) | Uses the reddit_researcher script to find human struggles and pain points. | When needing to discover new problems to solve to provide genuine value to people. |
 | ⚖️ [Risk Analyst](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/risk_analyst.md) | Conducts audits on risks to humans, systems, and capital. | Prior to approving any new feature, architecture change, or deployment. |
+| 🎨 [UX Designer](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/ux_designer.md) | Designs intuitive, responsive, and human-centric user journeys and flows. | When planning user interfaces, layout hierarchies, or analyzing human onboarding friction. |
+| 🕹️ [Game Designer](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/game_designer.md) | Designs engaging mechanics, flow states, and gamified feedback loops. | When building interactive applications, level designs, or gamified tutorials. |
 
 ---
 

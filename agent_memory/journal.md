@@ -28,8 +28,8 @@ This document tracks our financial balances, project milestones, and chronologic
   - Deployed static sparks tool securely to `https://sparks.pomegranate.co.nz` with automatic Traefik SSL certificate provisioning.
 - `[x]` **Milestone 6: Autonomous Idea Selection & Feasibility Audit**
   - Synthesize autonomous Reddit research findings, identify non-technical human struggles, and brainstorm solutions that meet the strict autonomy guidelines.
-- `[ ]` **Milestone 7: Chess Middle Game Noise Filter App Implementation**
-  - Build the client-side board visualizer and pawn skeleton noise-filtering application, deploying it statically under our hosting infrastructure.
+- `[x]` **Milestone 7: Chess App Redesign & UX/Game Design Refinement**
+  - Pivot from a static FEN analyzer to an engaging, gamified experience designed from a human perspective. Create UX/Game Design frameworks and design/implement the new chess tool interface.
 
 ---
 
@@ -95,4 +95,72 @@ This document tracks our financial balances, project milestones, and chronologic
 
 - Created the `chess_tool/` directory to house the new static web application.
 - Wrote a detailed Product Specification in `chess_tool/spec.md` outlining the value proposition, functional and non-functional requirements, UI/UX design, and monetization integration.
-- Next Step: Begin implementing the static client-side web application for the Chess Middle Game Noise Filter based on the specification.
+
+### 2026-06-19 | Agent 8 | Branch Alignment, Spec Rejection & UX/Game Design Skills Integration
+
+- Synced repository state, pulled remote changes on `main`, and ran the experimental chess tool feature branch locally.
+- Verified the tool via a browser subagent and found it technically functional but highly unengaging for human players (requiring manual FEN input and offering no playable loops).
+- Pivoted back to `main` branch and deleted the initial `chess_tool` spec per Brad's instructions to prepare for a human-centric rewrite.
+- Created two new execution skills to guide future development from a player-first perspective:
+  - [ux_designer.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/ux_designer.md): Focuses on user empathy, the First Time User Experience (FTUE), cognitive load reduction, and wireframe/screen flows.
+  - [game_designer.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/game_designer.md): Focuses on games as learning (Theory of Fun), core loops, maintaining the flow state (challenge-skill balance), and interaction "juice".
+- Registered both skills in [README.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/README.md).
+- Created [workflow_protocol.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/workflow_protocol.md) defining the 8-Phase Product Development Lifecycle Protocol (PDLC) to formalize development gates, execution rules, and handoffs.
+- Next Step: Initiate Phase 3 (Gamification & Mechanics Design) by drafting the Game Design Document (GDD) for the new Chess application.
+
+### 2026-06-19 | Agent 9 | Phase 3: Gamification & Mechanics Design
+
+- Acted as the Game Designer to draft the Game Design Document (GDD) for Chess X-Ray (Skeletal Trainer) in [game_design.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/game_design.md).
+- Designed the "Noise Filter" concept as an interactive "X-Ray Mode" toggle that strips away tactical clutter (semitransparent wireframes) and highlights positional pawn chains, outposts, weaknesses, and open files.
+- Defined a structured learning progression featuring 4 core syllabus levels (Carlsbad, IQP, Hedgehog, and Closed Center structures) and a timed endless Blitz mode.
+- Specified aesthetic "juice" requirements including CSS-based wireframe dissolves, pulsing outposts, and particle burst win states.
+- Next Step: Initiate Phase 4 (UX Specification) by drafting the One-Shot Ready UX Spec including screen inventories, layout grids, element descriptions, and state machines.
+
+### 2026-06-19 | Agent 10 | Phase 4: UX Specification (Wireframing)
+
+- Acted as the UX Designer to draft the One-Shot Ready UX Specification in [ux_spec.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/ux_spec.md).
+- Mapped out the full Screen Inventory (Landing Hub, Syllabus Play, Endless Blitz, Victory Modal, and Tipping Panel) with explicit responsive grid structures and HTML/DOM element descriptions.
+- Defined a detailed application State Machine, specifying state variables, validation rules, and action transition matrices.
+- Developed an aesthetic style system using HSL color tokens, detailed micro-interactions (wireframe dissolve, success pulse, error shake), and custom audio synthesis parameters for Web Audio API.
+- Hardcoded the complete offline learning dataset for Carlsbad, IQP, Hedgehog, and Closed Center levels, plus random Endless Blitz challenge positions.
+- Next Step: Initiate Phase 5 (Technical Architecture Design) to map out the application architecture, directory layouts, and module boundaries.
+
+### 2026-06-19 | Agent 11 | Phase 5: Technical Architecture Design
+
+- Acted as the Technical Architect to draft the Technical Design Document (tech_spec.md) in [tech_spec.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/tech_spec.md).
+- Designed the single-page application directory layout and modular boundaries between `app.js`, `board.js`, `database.js`, and `audio.js`.
+- Specified the complete JSON data models for application state, syllabus levels, stages, and X-Ray overlay highlights.
+- Defined module interfaces, class structures (`ChessBoardRenderer`), and real-time audio synthesis parameters using the Web Audio API.
+- Documented detailed implementation plans for responsive grids, FEN parsing, and SVG piece rendering inside inline `<use>` definitions to support CSS-based piece dissolution/filtering.
+- Next Step: Initiate Phase 6 (Implementation & Build) to write the complete application codebase.
+
+### 2026-06-19 | Agent 12 | Phase 6: Codebase Implementation & Server Startup
+
+- Created the `chess_tool/` directory structures containing `database.js`, `audio.js`, `board.js`, `app.js`, `style.css`, and `index.html`.
+- Implemented FEN parsing, grid rendering, SVG vector drawing (chains, files, outposts, and lever arrows), Web Audio API sound synthesis, responsive glassmorphic styles, and the game loop logic (including the 10-second Endless Blitz countdown timer).
+- Verified syntax checks on Javascript modules using Node and successfully spun up the Python-based local development server on port 8080.
+- Next Step: Initiate Phase 7 (UX Polish & Juicing) to audit and refine the visual transitions, hover animations, sound triggers, and micro-interactions.
+
+### 2026-06-19 | Agent 13 | Phase 7: UX Polish & Juicing
+
+- Polished Chess X-Ray app visuals, transitions, animations, and sound effects:
+  - Upgraded hover glows and snapping transitions on syllabus cards and option buttons.
+  - Sequenced staggered entry animations for level cards.
+  - Switched the tipping drawer slide to hardware-accelerated `transform: translateX` transitions.
+  - Added blurred backdrop overlays when drawers or modals are open.
+  - Refined X-Ray piece dissolve animations (scales, grays, blurs, and fades non-structural pieces).
+  - Added spring bounce pop scaling on victory modals.
+  - Added cursor changes and box-shadow glows on chessboard squares.
+  - Expanded client-side synthesized sound effects in `audio.js` and hooked them in `app.js` (including tactile hover ticks, low-time warned ticking in Endless Blitz, mechanical drawers sliding white noise bandpass sweeps, minor chord game-over sweeps, and level completion major chord fanfare arpeggios).
+  - Re-engineered the canvas confetti system to render rotating particles of different shapes (circles, squares, triangles, ribbons) falling under air drag and wind drift.
+- Verified syntax evaluations of all code modules.
+- Next Step: Initiate Phase 8 (QA, Verification & Delivery) to validate the application in the browser and record a walkthrough.
+
+### 2026-06-20 | Agent 14 | Phase 8: Final QA, Verification & Delivery
+
+- Performed static checks and syntax verification on all game scripts.
+- Discovered and resolved a critical visual defect: the standard Wikimedia Commons (cburnett) piece vector definition for the black King (`b-k`) was missing in the SVG `<defs>` block of `index.html`. Inlined the correct standard vector graphics for `b-k`.
+- **Overlay Removal**: Completely removed all SVG visual vector overlays (green dashed lines, orange squares, target circles, levers/arrows, file overlays) from the board rendering in `board.js` and cleaned up `app.js` calls. This ensures players are not given clues and must identify structural features solely by analyzing piece opacities.
+- Updated the walkthrough report to guide the user through local manual verification.
+- Handoff: Delivered all components for active gameplay on the local dev server.
+

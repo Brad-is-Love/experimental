@@ -21,7 +21,9 @@ Determine which project phase applies:
 - **Phase 2: Ideation** -> Brainstorming with lateral seeds (Next).
 - **Phase 3: Research & Audit** -> Evaluating selected ideas for cost, viability, and demand.
 - **Phase 4: Marketing Validation** -> Testing customer interest before building.
-- **Phase 5: Implementation** -> Writing code, setting up pages, deploying to droplet.
+- **Phase 5: Implementation** -> 
+  1. **UX Spec & Screen Inventory:** Create a list of screens/states and detailed descriptions of each (as mandated in the [UX Designer Skill](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/ux_designer.md)) before writing any code.
+  2. **Coding & Deployment:** Implement the UI, write code, run dev servers, build production packages, and deploy to droplet.
 - **Phase 6: Delivery & Hand-off** -> Initiating transaction loop, requesting human action if needed.
 
 ### 3. Coordinate Execution
