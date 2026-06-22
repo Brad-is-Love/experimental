@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Story Generator</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .loading { display: none; color: #666; font-style: italic; }
+        .error { color: red; }
+        .result { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; display: none; }
+        pre { white-space: pre-wrap; font-family: inherit; }
+        .vocab-list { background: #f9f9f9; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Language Story Generator</h1>
+    <p>Upload your Anki `.apkg` deck. We'll find young cards and write a short story to help you practice!</p>
+
+    <form id="uploadForm">
+        <input type="file" id="fileInput" accept=".apkg" required>
+        <button type="submit">Upload and Generate</button>
+    </form>
+
+    <div id="loading" class="loading">Processing deck and generating story... This might take a few seconds.</div>
+    <div id="error" class="error"></div>
+
+    <div id="result" class="result">
+        <h2>Your Story</h2>
+        <div id="storyContent"></div>
+
+        <h3>Vocabulary Used</h3>
+        <ul id="vocabList" class="vocab-list"></ul>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').textContent = '';
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('storyContent').innerHTML = '';
+            document.getElementById('vocabList').innerHTML = '';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Upload failed');
+                }
+
+                // Render story markdown-ish to text and safe elements
+                const storyContent = document.getElementById('storyContent');
+                const paragraphs = data.story.split('\n');
+
+                paragraphs.forEach(pText => {
+                    if (pText.trim() === '') return;
+
+                    const p = document.createElement('p');
+                    // Simple bold handling that is safe from XSS by splitting and creating text nodes
+                    const parts = pText.split(/(\*\*.*?\*\*)/g);
+                    parts.forEach(part => {
+                        if (part.startsWith('**') && part.endsWith('**')) {
+                            const strong = document.createElement('strong');
+                            strong.textContent = part.slice(2, -2);
+                            p.appendChild(strong);
+                        } else {
+                            p.appendChild(document.createTextNode(part));
+                        }
+                    });
+                    storyContent.appendChild(p);
+                });
+
+                const vocabList = document.getElementById('vocabList');
+                data.vocabulary.forEach(v => {
+                    const li = document.createElement('li');
+                    li.textContent = `${v.front} - ${v.back}`;
+                    vocabList.appendChild(li);
+                });
+
+                document.getElementById('result').style.display = 'block';
+
+            } catch (err) {
+                document.getElementById('error').textContent = err.message;
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
