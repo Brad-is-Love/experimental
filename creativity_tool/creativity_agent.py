@@ -7,14 +7,30 @@ import urllib.request
 import urllib.parse
 import argparse
 
+def find_file(filenames):
+    """Finds the first existing file from a list of possible paths."""
+    for path in filenames:
+        if os.path.exists(path):
+            return path
+    return None
+
+def fetch_json(url, data=None, headers=None, timeout=5):
+    """Helper to fetch JSON data."""
+    if headers is None:
+        headers = {'User-Agent': 'SynapticSparks/1.0 (creativity tool)'}
+
+    req = urllib.request.Request(url, data=data, headers=headers)
+    with urllib.request.urlopen(req, timeout=timeout) as response:
+        return json.loads(response.read().decode('utf-8'))
+
 # Database Lists Loading
 def load_database():
-    for path in ['database.json', 'creativity_tool/database.json', '../creativity_tool/database.json']:
-        if os.path.exists(path):
-            with open(path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                data['STOP_WORDS'] = set(data['STOP_WORDS'])
-                return data
+    path = find_file(['database.json', 'creativity_tool/database.json', '../creativity_tool/database.json'])
+    if path:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            data['STOP_WORDS'] = set(data['STOP_WORDS'])
+            return data
     raise FileNotFoundError("Could not find database.json")
 
 _db = load_database()
@@ -41,18 +57,14 @@ def fetch_wikipedia_spark():
     try:
         # 1. Fetch a random page title
         random_url = 'https://en.wikipedia.org/w/api.php?action=query&format=json&list=random&rnnamespace=0&rnlimit=1'
-        req = urllib.request.Request(random_url, headers={'User-Agent': 'SynapticSparks/1.0 (creativity tool)'})
-        with urllib.request.urlopen(req, timeout=5) as response:
-            data = json.loads(response.read().decode('utf-8'))
+        data = fetch_json(random_url)
         
         title = data['query']['random'][0]['title']
         
         # 2. Fetch the summary for that page
         safe_title = urllib.parse.quote(title.replace(' ', '_'))
         summary_url = f'https://en.wikipedia.org/api/rest_v1/page/summary/{safe_title}'
-        req = urllib.request.Request(summary_url, headers={'User-Agent': 'SynapticSparks/1.0 (creativity tool)'})
-        with urllib.request.urlopen(req, timeout=5) as response:
-            summary_data = json.loads(response.read().decode('utf-8'))
+        summary_data = fetch_json(summary_url)
             
         return {
             'title': summary_data.get('title', title),
@@ -94,14 +106,7 @@ def call_gemini(api_key, model, prompt, temp):
     
     try:
         data = json.dumps(payload).encode('utf-8')
-        req = urllib.request.Request(
-            url,
-            data=data,
-            headers={'Content-Type': 'application/json'}
-        )
-        with urllib.request.urlopen(req, timeout=30) as response:
-            resp_data = json.loads(response.read().decode('utf-8'))
-            
+        resp_data = fetch_json(url, data=data, headers={'Content-Type': 'application/json'}, timeout=30)
         return resp_data['candidates'][0]['content']['parts'][0]['text']
     except Exception as e:
         print(f"\n{Colors.RED}Gemini API Call Failed: {e}{Colors.END}")
@@ -109,28 +114,28 @@ def call_gemini(api_key, model, prompt, temp):
 
 def load_dotenv():
     """Loads environment variables from .env file if it exists, without external dependencies."""
-    for path in ['.env', '../.env', 'creativity_tool/.env']:
-        if os.path.exists(path):
-            try:
-                with open(path, 'r') as f:
-                    for line in f:
-                        line = line.strip()
-                        if line and not line.startswith('#') and '=' in line:
-                            k, v = line.split('=', 1)
-                            v = v.strip('\'"')
-                            os.environ[k.strip()] = v.strip()
-            except Exception:
-                pass
+    path = find_file(['.env', '../.env', 'creativity_tool/.env'])
+    if path:
+        try:
+            with open(path, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        k, v = line.split('=', 1)
+                        v = v.strip('\'"')
+                        os.environ[k.strip()] = v.strip()
+        except Exception:
+            pass
 
 def load_prompt_template():
     """Loads prompt template from prompt_template.txt if it exists, otherwise falls back to hardcoded template."""
-    for path in ['prompt_template.txt', 'creativity_tool/prompt_template.txt', '../creativity_tool/prompt_template.txt']:
-        if os.path.exists(path):
-            try:
-                with open(path, 'r', encoding='utf-8') as f:
-                    return f.read()
-            except Exception:
-                pass
+    path = find_file(['prompt_template.txt', 'creativity_tool/prompt_template.txt', '../creativity_tool/prompt_template.txt'])
+    if path:
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception:
+            pass
     return """You are a Lateral Thinking Creativity Agent. Your task is to generate 3 highly detailed, non-obvious, creative business or project ideas designed to achieve this goal: "{{GOAL}}".
 
 To inject lateral elements into your thinking, your ideas must be seeded by these random variables, although the use can be metaphorical:

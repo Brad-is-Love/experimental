@@ -79,6 +79,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   rollAllSeeds();
 });
 
+// Helper Function for Random Element Selection
+function getRandomItem(array) {
+  if (!array || array.length === 0) return null;
+  return array[Math.floor(Math.random() * array.length)];
+}
+
 // Event Binding
 function bindEvents() {
   // Sidebar/Settings toggles
@@ -321,7 +327,7 @@ async function fetchWikipediaSpark() {
     console.error("Wikipedia fetch failed, using fallback.", err);
     // Grab a random fallback
     if (DB.FALLBACK_SPARKS.length > 0) {
-      const fallback = DB.FALLBACK_SPARKS[Math.floor(Math.random() * DB.FALLBACK_SPARKS.length)];
+      const fallback = getRandomItem(DB.FALLBACK_SPARKS);
       state.wiki.title = fallback.title;
       state.wiki.extract = fallback.extract;
       state.wiki.link = fallback.link;
@@ -381,7 +387,7 @@ function extractSparkWords(text) {
 // Oblique Heuristic Roller
 function rollObliqueStrategy() {
   if (DB.OBLIQUE_STRATEGIES.length === 0) return;
-  const strategy = DB.OBLIQUE_STRATEGIES[Math.floor(Math.random() * DB.OBLIQUE_STRATEGIES.length)];
+  const strategy = getRandomItem(DB.OBLIQUE_STRATEGIES);
   state.oblique = strategy;
   document.getElementById('oblique-text').textContent = `"${strategy}"`;
   updatePrompt();
@@ -390,8 +396,8 @@ function rollObliqueStrategy() {
 // Physical Spark Roller
 function rollPhysicalInteraction() {
   if (DB.PHYSICAL_OBJECTS.length === 0 || DB.ACTIONS.length === 0) return;
-  const obj = DB.PHYSICAL_OBJECTS[Math.floor(Math.random() * DB.PHYSICAL_OBJECTS.length)];
-  const act = DB.ACTIONS[Math.floor(Math.random() * DB.ACTIONS.length)];
+  const obj = getRandomItem(DB.PHYSICAL_OBJECTS);
+  const act = getRandomItem(DB.ACTIONS);
   
   state.physical.object = obj;
   state.physical.action = act;
@@ -404,8 +410,8 @@ function rollPhysicalInteraction() {
 // Sensory Context Roller
 function rollSensoryContext() {
   if (DB.SENSORY_DETAILS.length === 0 || DB.LOCATIONS.length === 0) return;
-  const detail = DB.SENSORY_DETAILS[Math.floor(Math.random() * DB.SENSORY_DETAILS.length)];
-  const location = DB.LOCATIONS[Math.floor(Math.random() * DB.LOCATIONS.length)];
+  const detail = getRandomItem(DB.SENSORY_DETAILS);
+  const location = getRandomItem(DB.LOCATIONS);
   
   state.sensory.detail = detail;
   state.sensory.location = location;
