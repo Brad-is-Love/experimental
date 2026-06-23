@@ -99,3 +99,76 @@ Under the strict Autonomy Mandate, the **Chess Middle Game "Noise Filter"** is t
 2. **Minimal Risk**: No backend databases or user keys to secure, mitigating security and legal issues.
 3. **High Virality**: Chess content is highly shared on platforms like Reddit, offering organic marketing channels.
 4. **Permits Auto-Monetization**: We can easily integrate the Harmony/Ethereum tipping jar directly on the static page.
+
+---
+
+## Active Project: Anki Language Story Generator
+
+### 1. Research & Feasibility Audit (Researcher Role)
+
+#### Summary of Value Proposition
+- **Target Audience**: Language learners utilizing Anki flashcards who struggle to transition from isolated vocabulary memorization to contextual reading comprehension.
+- **Delivered Value**: Automatically extracts active and young/struggling vocabulary words from user-uploaded `.apkg` decks and utilizes Gemini 2.5 Flash to write engaging, contextual stories highlighting these words, helping learners bridge the gap between rote recall and active use.
+
+#### Competitor & Alternative Scan
+- **Competitors Found**:
+  - **Kahani (Anki Add-on)**: Integrates directly with Anki Desktop but offers limited customization of themes, levels, and genres, and suffers from desktop-specific interface limitations.
+  - **Manual Prompting**: Users manually copy-paste vocabulary lists from Anki exports into ChatGPT/Claude. This is a high-friction process with inconsistent formatting.
+- **Key Differentiator**: Our web-based tool eliminates manual work by dynamically parsing the `.apkg` SQLite database in-browser (or via a clean server micro-agent) and immediately generating an immersive, gamified reading experience with premium visual polish, target-level selection, and built-in interactive feedback.
+
+#### Financial & Resource Audit
+- **Estimated Setup Cost**: $0.00 (leveraging standard static web servers, Docker containerization, and free tiers).
+- **Cost Per Unit / Transaction**: ~$0.00017 per story generation (using `gemini-2.5-flash` pricing of $0.075 per 1M input tokens and $0.30 per 1M output tokens; average generation uses ~300 input tokens and ~500 output tokens).
+- **Suggested Pricing Model**: Freemium (3 free generations/day, tipping jar for additional usage, or premium unlocks for additional gamified features like custom genre/theme selection and translation gating).
+- **Target Profit Margin**: >95% (virtually zero marginal cost once hosted).
+
+#### Technical Architecture
+- **Front-end**: HTML, Vanilla JS, and custom Vanilla CSS.
+- **Back-end/Data**: Flask (Python) with `sqlite3` for parsing the exported Anki SQLite database, and `zstandard` for decompressing modern Anki exports.
+- **Hosting**: Running as a Docker container on the local server droplet.
+
+#### Risk, Ethics, & Safety Rating
+- **Technical Complexity**: Medium (requires parsing nested SQLite tables and handling variable Anki field architectures).
+- **Ethical Screen**: PASS. The tool provides clear, positive educational value and does not deploy deceptive design patterns, carbon-heavy computation, or gambling mechanisms.
+- **Feasibility Recommendation**: GO (Highly viable, fast to implement, utilizes existing Gemini API keys).
+
+---
+
+### 2. Risk & Safety Audit (Risk Analyst Role)
+
+#### Executive Summary
+- **Overall Risk Rating**: **MEDIUM** (A single **CRITICAL** risk identified in disk exhaustion/large uploads, but easily mitigated).
+- **Recommendation**: **PROCEED WITH MITIGATIONS** (Address file upload restrictions and zip extraction logic prior to front-facing launch).
+- **Summary**: Key risk domains involve disk space exhaustion from large media-rich `.apkg` files, rate-limiting or runaway costs on the Gemini API, and handling user vocabularies containing private information.
+
+#### Risk Registry
+
+| Risk ID | Risk Domain | Description | Likelihood | Impact | Rating | Mitigation Strategy |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **R-01** | System / Reliability | Runaway API requests drain developer budget or exceed free quota limits. | Medium | High | **Orange (High)** | Backend rate-limiting (Flask-Limiter) + API key fallback option for users. |
+| **R-02** | System / Reliability | Disk exhaustion from users uploading large `.apkg` files containing heavy images/audio files. | High | High | **Red (Critical)** | Configure max payload limits (16MB) and extract *only* `collection.anki2` files, ignoring all media. |
+| **R-03** | Human / Privacy | Users upload decks containing personally identifiable information (PII). | Medium | Medium | **Orange (High)** | Zero-retention policy: process decks in memory/temp and delete all files immediately upon response completion. |
+| **R-04** | System / Security | Upload of corrupted or malicious SQLite/Zip file to exploit parsing library vulnerabilities. | Low | Medium | **Yellow (Med)** | Sanitize inputs, enforce zip archive validation, and execute database queries within isolated try-except boundaries. |
+| **R-05** | Human / Legal | Copyright/ToS issues relating to generating stories from copyrighted textbook decks. | Low | Low | **Green (Low)** | Clear educational fair-use statement; zero persistent storage of uploaded decks prevents distribution risks. |
+
+#### Domain Analysis
+
+##### 👥 Risks to Humans
+- **Analysis**: The tool collects no user registration info, credentials, or tracking data. Decks are processed dynamically to extract vocab. However, cards *could* contain private details (e.g., custom sentences containing names or addresses).
+- **Mitigation Details**: Decks are uploaded to temporary folders, queried, and immediately purged from disk (using a `finally` block in `app.py`). There is no persistent database storing user decks.
+
+##### ⚙️ Risks to Systems
+- **Analysis**: Large `.apkg` files present a major system bottleneck. Decks with years of language learning cards often contain hundreds of megabytes of media (images/audio). Extracting them directly on the server could cause disk storage exhaust, blocking the container.
+- **Mitigation Details**:
+  1. Enforce Flask `MAX_CONTENT_LENGTH` = 16MB. Since vocabulary sqlite databases are rarely >5MB, this blocks oversized uploads.
+  2. Modify the extraction routine in `app.py` to selectively extract *only* the database file (`collection.anki2` or `collection.anki21`/`collection.anki21b`), skipping all other directories/files inside the zip archive.
+
+##### 💸 Risks to Capital
+- **Analysis**: Runaway billing could occur if the endpoint is automated or scraped.
+- **Mitigation Details**: Limit the server endpoints using rate-limiting libraries. Monitor billing and set strict monthly budgets inside Google AI Studio.
+
+#### Final Sign-off Checklist
+- [ ] No **Critical (Red)** risks remain unmitigated (R-02 mitigated via selective file extraction and size caps).
+- [ ] Legal compliance verified (ToS, copyright, crypto regulations).
+- [ ] Financial alerts and caps are configured.
+

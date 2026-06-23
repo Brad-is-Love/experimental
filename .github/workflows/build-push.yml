@@ -1,19 +1,30 @@
-name: Build and Push Sparks Image
+name: Build, Push, and Deploy Apps
 
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: brad-is-love/synaptic-sparks
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        include:
+          - name: Sparks (Creativity Tool)
+            context: ./creativity_tool
+            image: brad-is-love/synaptic-sparks
+          - name: LingoQuest (Language Tool)
+            context: ./language_tool
+            image: brad-is-love/lingoquest
+
+     # Add new apps here in the future
 
     steps:
       - name: Checkout repository
@@ -29,7 +40,22 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./creativity_tool
-          file: ./creativity_tool/Dockerfile
+          context: ${{ matrix.context }}
+          file: ${{ matrix.context }}/Dockerfile
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ env.REGISTRY }}/${{ matrix.image }}:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to DigitalOcean
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USERNAME }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd /home/deployer/server_configs
+            docker compose pull sparks lingoquest
+            docker compose up -d --remove-orphans

@@ -3,102 +3,459 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Language Story Generator</title>
-    <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .loading { display: none; color: #666; font-style: italic; }
-        .error { color: red; }
-        .result { margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 5px; display: none; }
-        pre { white-space: pre-wrap; font-family: inherit; }
-        .vocab-list { background: #f9f9f9; padding: 10px; border-radius: 4px; }
-    </style>
+    <title>LingoQuest: Anki Story Adventure</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="/static/index.css">
 </head>
 <body>
-    <h1>Language Story Generator</h1>
-    <p>Upload your Anki `.apkg` deck. We'll find young cards and write a short story to help you practice!</p>
+    <!-- Main Application Shell -->
+    <div class="app-container">
+        <!-- Persistent Top Header -->
+        <header class="app-header">
+            <div class="header-logo" id="logo-btn">
+                <i class="fa-solid fa-compass-drafting logo-icon"></i>
+                <span class="logo-text">LingoQuest</span>
+            </div>
+            
+            <div class="header-stats">
+                <!-- Streak Badge -->
+                <div class="stat-badge streak" title="Daily Streak">
+                    <i class="fa-solid fa-fire badge-icon"></i>
+                    <span id="header-streak">0</span> Days
+                </div>
+                
+                <!-- Coins Badge -->
+                <div class="stat-badge coins" title="LingoCoins">
+                    <i class="fa-solid fa-coins badge-icon"></i>
+                    <span id="header-coins">0</span>
+                </div>
+                
+                <!-- Level Badge & Progress -->
+                <div class="level-progress-container" title="XP Progress to Level Up">
+                    <div class="level-badge">
+                        Lv <span id="header-level">1</span>
+                    </div>
+                    <div class="progress-bar-track">
+                        <div class="progress-bar-fill" id="header-xp-fill" style="width: 0%"></div>
+                    </div>
+                    <span class="xp-text" id="header-xp-text">0 / 150 XP</span>
+                </div>
+                
+                <!-- Gear Settings Button -->
+                <button class="icon-button" id="btn-open-settings" title="Settings">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+        </header>
 
-    <form id="uploadForm">
-        <input type="file" id="fileInput" accept=".apkg" required>
-        <button type="submit">Upload and Generate</button>
-    </form>
+        <!-- SCREEN CONTAINER (Dynamic views injected/toggled here) -->
+        <main class="screen-viewport">
+            
+            <!-- SCREEN 1: LANDING / DASHBOARD -->
+            <section id="screen-landing" class="screen-view active">
+                <div class="landing-hero">
+                    <h1>Embark on your Language Quest</h1>
+                    <p>Transform your rote Anki cards into context-aware RPG stories and comprehension mini-games.</p>
+                </div>
+                
+                <div class="landing-grid">
+                    <!-- Column 1: Match Config -->
+                    <div class="glass-card config-panel">
+                        <h2><i class="fa-solid fa-sliders header-icon-blue"></i> Choose Adventure Path</h2>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Select Story Genre</label>
+                            <div class="genre-grid" id="genre-selector">
+                                <div class="genre-card active" data-genre="Daily Life">
+                                    <i class="fa-solid fa-house-user genre-icon"></i>
+                                    <span class="genre-name">Daily Life</span>
+                                </div>
+                                <div class="genre-card locked" data-genre="Fantasy" data-unlock="2">
+                                    <i class="fa-solid fa-wand-magic-sparkles genre-icon"></i>
+                                    <span class="genre-name">Fantasy</span>
+                                    <span class="unlock-label"><i class="fa-solid fa-lock"></i> Lv 2</span>
+                                </div>
+                                <div class="genre-card locked" data-genre="Noir Mystery" data-unlock="2">
+                                    <i class="fa-solid fa-magnifying-glass-chart genre-icon"></i>
+                                    <span class="genre-name">Noir Mystery</span>
+                                    <span class="unlock-label"><i class="fa-solid fa-lock"></i> Lv 2</span>
+                                </div>
+                                <div class="genre-card locked" data-genre="Sci-Fi" data-unlock="3">
+                                    <i class="fa-solid fa-shuttle-space genre-icon"></i>
+                                    <span class="genre-name">Sci-Fi</span>
+                                    <span class="unlock-label"><i class="fa-solid fa-lock"></i> Lv 3</span>
+                                </div>
+                                <div class="genre-card locked" data-genre="Cyberpunk" data-unlock="3">
+                                    <i class="fa-solid fa-microchip genre-icon"></i>
+                                    <span class="genre-name">Cyberpunk</span>
+                                    <span class="unlock-label"><i class="fa-solid fa-lock"></i> Lv 3</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Select Difficulty</label>
+                            <div class="difficulty-control">
+                                <button class="diff-btn active" data-difficulty="Novice" title="Short sentences, side-by-side reading translation">Novice</button>
+                                <button class="diff-btn" data-difficulty="Apprentice" title="Moderate structure, target words highlighted">Apprentice</button>
+                                <button class="diff-btn" data-difficulty="Master" title="Advanced structures, words are blanked initially">Master</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Column 2: Upload Zone -->
+                    <div class="glass-card upload-panel">
+                        <h2><i class="fa-solid fa-circle-arrow-up header-icon-purple"></i> Activate Vocabulary</h2>
+                        
+                        <!-- Drag & Drop Zone -->
+                        <div class="upload-dropzone" id="deck-dropzone">
+                            <i class="fa-solid fa-box-open upload-icon"></i>
+                            <p class="upload-primary-text">Drop your Anki <strong>.apkg</strong> file here</p>
+                            <p class="upload-secondary-text">or click to browse local files</p>
+                            <input type="file" id="anki-file-input" accept=".apkg" style="display: none;">
+                            
+                            <div class="deck-loaded-status" id="deck-status" style="display: none;">
+                                <i class="fa-solid fa-circle-check text-success"></i>
+                                <span id="loaded-filename">deck_name.apkg</span> loaded (<span id="loaded-count">0</span> cards)
+                            </div>
+                        </div>
+                        
+                        <div class="divider">
+                            <span>or play with demo decks</span>
+                        </div>
+                        
+                        <div class="demo-buttons-container">
+                            <button class="btn-secondary" id="btn-demo-spanish">
+                                <i class="fa-solid fa-language btn-badge-icon"></i> Spanish Noir Deck
+                            </button>
+                            <button class="btn-secondary" id="btn-demo-japanese">
+                                <i class="fa-solid fa-language btn-badge-icon"></i> Japanese Daily Life Deck
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Central Generate CTA -->
+                <div class="landing-cta-container">
+                    <button class="btn-primary btn-large btn-glow" id="btn-generate-quest" disabled>
+                        <i class="fa-solid fa-bolt"></i> Generate Story Quest
+                    </button>
+                </div>
+            </section>
+            
+            <!-- SCREEN 2: LOADING -->
+            <section id="screen-loading" class="screen-view">
+                <div class="loading-container">
+                    <div class="loading-spinner-wrapper">
+                        <div class="pulsing-compass">
+                            <i class="fa-solid fa-compass"></i>
+                        </div>
+                    </div>
+                    
+                    <h2 id="loading-title">Gemini is weaving your Noir Mystery story...</h2>
+                    <p class="loading-subtitle">Structuring custom educational comprehension checks</p>
+                    
+                    <!-- Learning Tips Carousel -->
+                    <div class="tips-carousel glass-card">
+                        <i class="fa-solid fa-lightbulb tip-icon"></i>
+                        <p id="loading-tip">Tip: Click highlighted terms in the story to reveal full definitions, translation notes, and flag them if you need more practice.</p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SCREEN 3: READING STORY -->
+            <section id="screen-reading" class="screen-view">
+                <div class="story-viewport-card glass-card">
+                    <!-- Top Sub-Header -->
+                    <div class="story-header">
+                        <div class="story-path-info">
+                            <span class="badge badge-purple" id="story-genre-badge">Noir Mystery</span>
+                            <span class="badge badge-cyan" id="story-difficulty-badge">Apprentice</span>
+                        </div>
+                        <div class="story-instruction">
+                            <i class="fa-solid fa-book-open"></i> Read the story. Tap highlighted cards to translate.
+                        </div>
+                    </div>
+                    
+                    <!-- Main Text Box -->
+                    <div class="story-body-container" id="story-paragraphs-container">
+                        <!-- Story paragraphs injected here dynamically -->
+                    </div>
+                    
+                    <!-- Floating popover detail card -->
+                    <div class="vocab-popover-card glass-card" id="vocab-popover">
+                        <button class="popover-close-btn" id="popover-close"><i class="fa-solid fa-xmark"></i></button>
+                        <h4 class="popover-front" id="popover-front">el ferrocarril</h4>
+                        <div class="popover-back-label">Translation</div>
+                        <p class="popover-back" id="popover-back">the railway / railroad</p>
+                        
+                        <div class="popover-actions">
+                            <button class="popover-flag-btn struggling" id="popover-flag-struggling">
+                                <i class="fa-solid fa-circle-question"></i> Struggling
+                            </button>
+                            <button class="popover-flag-btn mastered" id="popover-flag-mastered">
+                                <i class="fa-solid fa-circle-check"></i> Mastered
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Scroll completion status and button -->
+                    <div class="story-actions">
+                        <div class="scroll-prompt" id="scroll-prompt">
+                            <i class="fa-solid fa-chevron-down"></i> Scroll down to unlock challenges
+                        </div>
+                        <button class="btn-primary btn-large btn-glow" id="btn-start-challenges" disabled>
+                            Complete Reading & Enter the Rift (+20 XP) <i class="fa-solid fa-circle-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SCREEN 4: CHALLENGE 1 - CLOZE RIFT -->
+            <section id="screen-cloze" class="screen-view">
+                <div class="story-viewport-card glass-card">
+                    <div class="story-header">
+                        <div class="story-path-info">
+                            <span class="badge badge-gold">Challenge 1 / 3</span>
+                            <span class="badge badge-purple">The Cloze Rift</span>
+                        </div>
+                        <div class="story-instruction">
+                            <i class="fa-solid fa-hand-pointer"></i> Drag vocabulary pills back into their correct story slots!
+                        </div>
+                    </div>
+                    
+                    <!-- Text containing empty dashed slots -->
+                    <div class="story-body-container" id="cloze-story-paragraphs">
+                        <!-- Paragraphs with slots injected here -->
+                    </div>
+                    
+                    <!-- Draggable tray -->
+                    <div class="cloze-tray-container">
+                        <div class="cloze-tray-label">Vocabulary Tray</div>
+                        <div class="cloze-pills-tray" id="cloze-pills-tray">
+                            <!-- Draggable pills injected here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SCREEN 5: CHALLENGE 2 - COMPREHENSION QUEST -->
+            <section id="screen-comprehension" class="screen-view">
+                <div class="challenge-narrow-card glass-card">
+                    <div class="story-header">
+                        <div class="story-path-info">
+                            <span class="badge badge-gold">Challenge 2 / 3</span>
+                            <span class="badge badge-cyan">Comprehension Quest</span>
+                        </div>
+                        
+                        <!-- Question Step Progress Dots -->
+                        <div class="comp-steps-indicator" id="comp-steps-container">
+                            <span class="step-dot active"></span>
+                            <span class="step-dot"></span>
+                            <span class="step-dot"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Question Card -->
+                    <div class="comp-question-box">
+                        <h3 id="comp-question-title">¿Dónde caminaba el protagonista?</h3>
+                        
+                        <div class="comp-options-list" id="comp-options-container">
+                            <!-- Option cards dynamically generated -->
+                        </div>
+                    </div>
+                    
+                    <!-- Explanation block (hidden until answered) -->
+                    <div class="comp-explanation-card glass-card" id="comp-explanation-box" style="display: none;">
+                        <h4><i class="fa-solid fa-circle-info"></i> Answer Breakdown</h4>
+                        <p id="comp-explanation-text">Correct! The text states that the protagonist walked by the abandoned railroad to avoid the guards.</p>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="comp-actions">
+                        <button class="btn-primary btn-large btn-glow" id="btn-next-question" style="display: none;">
+                            Next Question <i class="fa-solid fa-circle-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SCREEN 6: CHALLENGE 3 - SPEED MATCH -->
+            <section id="screen-speed-match" class="screen-view">
+                <div class="challenge-narrow-card glass-card">
+                    <div class="story-header">
+                        <div class="story-path-info">
+                            <span class="badge badge-gold">Challenge 3 / 3</span>
+                            <span class="badge badge-purple">Speed Match</span>
+                        </div>
+                        <div class="story-instruction">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Match 6 pairs before time runs out! (+1.5s error penalty)
+                        </div>
+                    </div>
+                    
+                    <!-- Countdown Timer track -->
+                    <div class="speed-match-timer-container">
+                        <div class="timer-label">Time Remaining: <span id="speed-match-timer-value">20.0s</span></div>
+                        <div class="timer-bar-track">
+                            <div class="timer-bar-fill" id="speed-match-timer-fill" style="width: 100%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cards Grid -->
+                    <div class="speed-match-grid" id="speed-match-grid">
+                        <!-- Scrambled 12 cards injected here -->
+                    </div>
+                    
+                    <!-- Game Over / Restart Overlay -->
+                    <div class="speed-match-overlay" id="speed-match-fail-overlay">
+                        <div class="overlay-content glass-card">
+                            <i class="fa-solid fa-hourglass-end fail-icon"></i>
+                            <h3>Time Expired!</h3>
+                            <p>You must link all vocabulary cards to lock in your final quest rewards.</p>
+                            <button class="btn-primary" id="btn-retry-speedmatch">
+                                <i class="fa-solid fa-rotate-right"></i> Retry Trial
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- SCREEN 7: VICTORY -->
+            <section id="screen-victory" class="screen-view">
+                <div class="victory-card glass-card">
+                    <div class="victory-crown">
+                        <i class="fa-solid fa-trophy trophy-glow animate-bounce"></i>
+                    </div>
+                    
+                    <h1>QUEST COMPLETE!</h1>
+                    <p class="victory-subtitle" id="victory-quest-summary">Noir Mystery Quest solved on Apprentice difficulty.</p>
+                    
+                    <!-- Score details table -->
+                    <div class="score-summary-table">
+                        <div class="score-row">
+                            <span class="score-label"><i class="fa-solid fa-book-open"></i> Story Chapter Read</span>
+                            <span class="score-value">+20 XP</span>
+                        </div>
+                        <div class="score-row">
+                            <span class="score-label"><i class="fa-solid fa-puzzle-piece"></i> Cloze Rift Solved</span>
+                            <span class="score-value" id="victory-xp-cloze">+30 XP</span>
+                        </div>
+                        <div class="score-row">
+                            <span class="score-label"><i class="fa-solid fa-circle-question"></i> Comprehension Quest (3/3)</span>
+                            <span class="score-value" id="victory-xp-comp">+45 XP</span>
+                        </div>
+                        <div class="score-row">
+                            <span class="score-label"><i class="fa-solid fa-bolt"></i> Speed Match Completed</span>
+                            <span class="score-value" id="victory-xp-speed">+30 XP</span>
+                        </div>
+                        <div class="score-row total-row">
+                            <span class="score-label">Total Gained</span>
+                            <span class="score-value" id="victory-total-xp">+125 XP</span>
+                        </div>
+                        <div class="score-row coins-row">
+                            <span class="score-label">Coins Collected</span>
+                            <span class="score-value" id="victory-total-coins">+15 Coins</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Circular Progress XP -->
+                    <div class="victory-progress-section">
+                        <div class="circular-progress-wrapper">
+                            <!-- SVGs for circular progress -->
+                            <svg class="circular-progress-svg" viewBox="0 0 120 120">
+                                <circle class="circle-bg" cx="60" cy="60" r="50"></circle>
+                                <circle class="circle-fill" id="victory-circle-fill" cx="60" cy="60" r="50" style="stroke-dashoffset: 314"></circle>
+                            </svg>
+                            <div class="circular-progress-text">
+                                <span class="victory-level-label">Level</span>
+                                <span class="victory-level-val" id="victory-level">1</span>
+                            </div>
+                        </div>
+                        <div class="progress-details-text" id="victory-xp-details-text">0 / 150 XP</div>
+                    </div>
+                    
+                    <!-- CTA to return -->
+                    <div class="victory-actions">
+                        <button class="btn-primary btn-large btn-glow" id="btn-return-landing">
+                            <i class="fa-solid fa-beer-mug-empty"></i> Return to Tavern (Dashboard)
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <!-- PERSISTENT FOOTER -->
+        <footer class="app-footer">
+            <span class="footer-credit">LingoQuest &copy; 2026. Doubling value, one word at a time.</span>
+        </footer>
+    </div>
+    
+    <!-- LEVEL UP CELEBRATION OVERLAY -->
+    <div class="level-up-overlay" id="level-up-modal">
+        <div class="level-up-card glass-card">
+            <i class="fa-solid fa-wand-magic-sparkles level-up-magic-icon"></i>
+            <h2>LEVEL UP!</h2>
+            <div class="level-up-badge">
+                Lv <span id="level-up-number">2</span>
+            </div>
+            <p class="level-up-subtitle">Your linguistic powers are expanding!</p>
+            <div class="unlocked-features" id="level-up-unlocks">
+                <div class="unlock-item">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Unlocked: Fantasy Genre & Noir Mystery</span>
+                </div>
+            </div>
+            <button class="btn-primary" id="btn-level-up-close">Accept Rewards</button>
+        </div>
+    </div>
+    
+    <!-- SETTINGS MODAL -->
+    <div class="settings-modal-backdrop" id="modal-settings">
+        <div class="settings-modal glass-card">
+            <div class="settings-modal-header">
+                <h3><i class="fa-solid fa-screwdriver-wrench"></i> Settings</h3>
+                <button class="icon-button" id="btn-close-settings" title="Close"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="settings-modal-body">
+                <div class="form-group">
+                    <label class="form-label" for="settings-api-key">Gemini API Key</label>
+                    <input type="password" id="settings-api-key" placeholder="Enter your AIzaSy... API key" class="text-input">
+                    <span class="help-text">Your key will be securely saved locally in your browser's localStorage and sent directly in generation payloads. If left empty, the server's environment configuration is used.</span>
+                </div>
 
-    <div id="loading" class="loading">Processing deck and generating story... This might take a few seconds.</div>
-    <div id="error" class="error"></div>
-
-    <div id="result" class="result">
-        <h2>Your Story</h2>
-        <div id="storyContent"></div>
-
-        <h3>Vocabulary Used</h3>
-        <ul id="vocabList" class="vocab-list"></ul>
+                <div class="form-group" style="margin-top: 15px; margin-bottom: 15px;">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;">
+                        <input type="checkbox" id="settings-sound-effects" checked style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-cyan);">
+                        <span style="color: var(--text-primary); font-size: 0.95rem; font-weight: 500;">Enable Game Sound Effects</span>
+                    </label>
+                </div>
+                
+                <div class="form-group-row">
+                    <button class="btn-secondary" id="btn-clear-api-key"><i class="fa-solid fa-trash-can"></i> Clear Key</button>
+                    <button class="btn-secondary" id="btn-clear-progress"><i class="fa-solid fa-trash-can"></i> Reset Progress</button>
+                </div>
+            </div>
+            
+            <div class="settings-modal-footer">
+                <button class="btn-primary" id="btn-save-settings">Save and Apply</button>
+            </div>
+        </div>
     </div>
 
-    <script>
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-            if (!file) return;
-
-            const formData = new FormData();
-            formData.append('file', file);
-
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('error').textContent = '';
-            document.getElementById('result').style.display = 'none';
-            document.getElementById('storyContent').innerHTML = '';
-            document.getElementById('vocabList').innerHTML = '';
-
-            try {
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Upload failed');
-                }
-
-                // Render story markdown-ish to text and safe elements
-                const storyContent = document.getElementById('storyContent');
-                const paragraphs = data.story.split('\n');
-
-                paragraphs.forEach(pText => {
-                    if (pText.trim() === '') return;
-
-                    const p = document.createElement('p');
-                    // Simple bold handling that is safe from XSS by splitting and creating text nodes
-                    const parts = pText.split(/(\*\*.*?\*\*)/g);
-                    parts.forEach(part => {
-                        if (part.startsWith('**') && part.endsWith('**')) {
-                            const strong = document.createElement('strong');
-                            strong.textContent = part.slice(2, -2);
-                            p.appendChild(strong);
-                        } else {
-                            p.appendChild(document.createTextNode(part));
-                        }
-                    });
-                    storyContent.appendChild(p);
-                });
-
-                const vocabList = document.getElementById('vocabList');
-                data.vocabulary.forEach(v => {
-                    const li = document.createElement('li');
-                    li.textContent = `${v.front} - ${v.back}`;
-                    vocabList.appendChild(li);
-                });
-
-                document.getElementById('result').style.display = 'block';
-
-            } catch (err) {
-                document.getElementById('error').textContent = err.message;
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-            }
-        });
-    </script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    
+    <!-- Application Logic Scripts -->
+    <script src="/static/index.js"></script>
 </body>
 </html>
