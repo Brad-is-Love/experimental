@@ -160,7 +160,7 @@ def upload_file():
 def generate_story():
     data = request.json or {}
     genre = data.get('genre', 'Daily Life')
-    difficulty = data.get('difficulty', 'Novice')
+    language_level = data.get('languageLevel', 'Beginner')
     vocabulary = data.get('vocabulary', [])
 
     if not vocabulary:
@@ -176,9 +176,9 @@ def generate_story():
 
     vocab_json_str = json.dumps(vocabulary, ensure_ascii=False)
 
-    prompt = f"""You are an expert language teacher and writer. Write an engaging story in the target language (inferred from the vocabulary cards, e.g. Spanish, Japanese, French, etc.) matching the genre: {genre} and difficulty: {difficulty}.
+    prompt = f"""You are an expert language teacher and writer. Write an engaging story matching the genre: {genre}. The target language and student's current proficiency level are: {language_level}.
 
-The story must incorporate all or as many as possible of the following target vocabulary items:
+The story must incorporate a maximum of 7 words from the following target vocabulary items. Choose the ones that fit best naturally:
 {vocab_json_str}
 
 Strict Formatting Rules:

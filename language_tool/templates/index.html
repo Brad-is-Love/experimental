@@ -102,14 +102,6 @@
                             </div>
                         </div>
                         
-                        <div class="form-group">
-                            <label class="form-label">Select Difficulty</label>
-                            <div class="difficulty-control">
-                                <button class="diff-btn active" data-difficulty="Novice" title="Short sentences, side-by-side reading translation">Novice</button>
-                                <button class="diff-btn" data-difficulty="Apprentice" title="Moderate structure, target words highlighted">Apprentice</button>
-                                <button class="diff-btn" data-difficulty="Master" title="Advanced structures, words are blanked initially">Master</button>
-                            </div>
-                        </div>
                     </div>
                     
                     <!-- Column 2: Upload Zone -->
@@ -130,24 +122,22 @@
                         </div>
                         
                         <div class="divider">
-                            <span>or play with demo decks</span>
+                            <span>or describe your target language and current level</span>
                         </div>
                         
-                        <div class="demo-buttons-container">
-                            <button class="btn-secondary" id="btn-demo-spanish">
-                                <i class="fa-solid fa-language btn-badge-icon"></i> Spanish Noir Deck
-                            </button>
-                            <button class="btn-secondary" id="btn-demo-japanese">
-                                <i class="fa-solid fa-language btn-badge-icon"></i> Japanese Daily Life Deck
-                            </button>
+                        <div class="form-group">
+                            <input type="text" id="target-language-level" class="text-input" placeholder="Chinese intermediate, studying for hsk5" style="width: 100%; text-align: center;">
                         </div>
                     </div>
                 </div>
                 
                 <!-- Central Generate CTA -->
-                <div class="landing-cta-container">
+                <div class="landing-cta-container" style="display: flex; gap: 15px;">
                     <button class="btn-primary btn-large btn-glow" id="btn-generate-quest" disabled>
                         <i class="fa-solid fa-bolt"></i> Generate Story Quest
+                    </button>
+                    <button class="btn-secondary btn-large" id="btn-resume-quest" style="display: none;">
+                        <i class="fa-solid fa-play"></i> Resume Quest
                     </button>
                 </div>
             </section>
