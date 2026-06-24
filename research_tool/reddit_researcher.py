@@ -35,18 +35,14 @@ def fetch_pullpush_json(url):
         print(f"Error fetching {url}: {e}")
         return None
 
-def analyze_subreddit(subreddit, limit=25):
-    """Analyzes recent posts from a given subreddit using PullPush."""
-    print(f"Analyzing r/{subreddit} using PullPush archive API...")
-    # Using PullPush API to get recent submissions
-    url = f"https://api.pullpush.io/reddit/search/submission/?subreddit={urllib.parse.quote(subreddit)}&size={limit}&sort=desc"
-    data = fetch_pullpush_json(url)
-
+def process_posts(data, default_subreddit=None):
+    """Processes Reddit posts into finding dictionaries."""
     findings = []
     if data and 'data' in data:
         for post in data['data']:
             title = post.get('title', '')
             selftext = post.get('selftext', '')
+            subreddit = post.get('subreddit', default_subreddit or 'unknown')
             score = post.get('score', 0)
             num_comments = post.get('num_comments', 0)
             url = post.get('url', '')
@@ -66,38 +62,22 @@ def analyze_subreddit(subreddit, limit=25):
                     "author": author,
                     "content_snippet": selftext[:500] + "..." if len(selftext) > 500 else selftext
                 })
-
     return findings
+
+def analyze_subreddit(subreddit, limit=25):
+    """Analyzes recent posts from a given subreddit using PullPush."""
+    print(f"Analyzing r/{subreddit} using PullPush archive API...")
+    # Using PullPush API to get recent submissions
+    url = f"https://api.pullpush.io/reddit/search/submission/?subreddit={urllib.parse.quote(subreddit)}&size={limit}&sort=desc"
+    data = fetch_pullpush_json(url)
+    return process_posts(data, default_subreddit=subreddit)
 
 def search_keywords(query, limit=25):
     """Searches for specific keywords across all subreddits."""
     print(f"Searching for topics related to '{query}' across Reddit using PullPush...")
     url = f"https://api.pullpush.io/reddit/search/submission/?q={urllib.parse.quote(query)}&size={limit}&sort=desc"
     data = fetch_pullpush_json(url)
-
-    findings = []
-    if data and 'data' in data:
-        for post in data['data']:
-            title = post.get('title', '')
-            selftext = post.get('selftext', '')
-            subreddit = post.get('subreddit', 'unknown')
-            score = post.get('score', 0)
-            num_comments = post.get('num_comments', 0)
-            url = post.get('url', '')
-
-            if selftext in ["[removed]", "[deleted]"]:
-                selftext = ""
-
-            if is_valid_post(title, selftext):
-                findings.append({
-                    "subreddit": subreddit,
-                    "title": title,
-                    "score": score,
-                    "comments": num_comments,
-                    "url": url,
-                    "content_snippet": selftext[:500] + "..." if len(selftext) > 500 else selftext
-                })
-    return findings
+    return process_posts(data)
 
 def save_findings(findings):
     """Saves the structured findings to JSON and appends a summary to Markdown."""
