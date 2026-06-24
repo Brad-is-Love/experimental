@@ -1803,3 +1803,23 @@ body {
         transform: translateY(-60px) scale(0.9);
     }
 }
+
+/* Selected state for Cloze mobile tap support */
+.drop-zone.selected {
+    border-color: var(--accent-purple);
+    background: var(--accent-purple-glow);
+    box-shadow: 0 0 10px var(--accent-purple-glow);
+    transform: scale(1.05);
+}
+
+.drag-pill.selected {
+    border-color: var(--accent-cyan);
+    background: var(--accent-cyan-glow);
+    box-shadow: 0 0 10px var(--accent-cyan-glow);
+    transform: translateY(-2px);
+}
+
+.target-level-container {
+    margin-top: 15px;
+    width: 100%;
+}

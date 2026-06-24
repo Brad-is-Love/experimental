@@ -161,10 +161,11 @@ def generate_story():
     data = request.json or {}
     genre = data.get('genre', 'Daily Life')
     difficulty = data.get('difficulty', 'Novice')
+    language_level = (data.get('language_level') or '').strip()
     vocabulary = data.get('vocabulary', [])
 
-    if not vocabulary:
-        return jsonify({'status': 'error', 'message': 'No vocabulary words provided'}), 400
+    if not vocabulary and not language_level:
+        return jsonify({'status': 'error', 'message': 'Please provide either vocabulary cards or a description of your target language and current level.'}), 400
 
     # Resolve API Key
     api_key = data.get('apiKey') or os.environ.get('GEMINI_API_KEY') or os.environ.get('GOOGLE_API_KEY')
@@ -176,15 +177,28 @@ def generate_story():
 
     vocab_json_str = json.dumps(vocabulary, ensure_ascii=False)
 
-    prompt = f"""You are an expert language teacher and writer. Write an engaging story in the target language (inferred from the vocabulary cards, e.g. Spanish, Japanese, French, etc.) matching the genre: {genre} and difficulty: {difficulty}.
+    if language_level:
+        level_instruction = f"precisely adapted to the student's level and target language description: {language_level}"
+    else:
+        level_instruction = f"precisely adapted to the difficulty level: {difficulty} (where Novice means short sentences and simple vocabulary, Apprentice means moderate structure and complexity, and Master means advanced structures and rich vocabulary)"
 
-The story must incorporate all or as many as possible of the following target vocabulary items:
+    prompt = f"""You are an expert language teacher and writer. Write an engaging story matching the genre: {genre}.
+The story and comprehension exercises must be written in the target language of the student (inferred from the vocabulary list or target language description).
+The story structure, complexity, and vocabulary must be {level_instruction}.
+
+If the target vocabulary list below is not empty:
+Choose and incorporate a maximum of 7 target vocabulary items from the list below into the story. Do not use more than 7 words. Choose the words that best fit a natural, engaging narrative.
+Target vocabulary list (choose at most 7):
 {vocab_json_str}
+
+If the target vocabulary list is empty:
+You must select 5 to 7 suitable vocabulary words in the target language at the student's level, incorporate them into the story, and return them with generated unique IDs (e.g. 'v1', 'v2', etc.) in the `vocabulary` list response field.
 
 Strict Formatting Rules:
 1. Divide the story into 2 to 4 paragraphs.
-2. For each target vocabulary word incorporated in the story, wrap it in a custom tag like: <vocab id="card_id">inflected_word_in_story</vocab>. The 'id' attribute must match the exact 'id' from the vocabulary list. For example, if the card has id "123" and front "ferrocarril", and the story uses "ferrocarriles", write: <vocab id="123">ferrocarriles</vocab>.
+2. For each target vocabulary word incorporated in the story, wrap it in a custom tag like: <vocab id="card_id">inflected_word_in_story</vocab>. The 'id' attribute must match the exact 'id' from the vocabulary list (or the generated unique IDs if no vocabulary was input). For example, if the card has id "123" and front "ferrocarril", and the story uses "ferrocarriles", write: <vocab id="123">ferrocarriles</vocab>.
 3. Generate exactly 3 multiple-choice comprehension questions in the target language based on the story. Each question must have exactly 4 options, a correct answer that matches one of the options verbatim, and a brief explanation in the target language.
+4. You must list all vocabulary items actually used in the story in the `vocabulary` response field, providing their ID, front (word in target language), and back (English translation).
 
 Return the result as a JSON object matching the defined schema.
 """
@@ -222,9 +236,22 @@ Return the result as a JSON object matching the defined schema.
                             },
                             "required": ["question", "options", "answer", "explanation"]
                         }
+                    },
+                    "vocabulary": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": { "type": "string" },
+                                "front": { "type": "string" },
+                                "back": { "type": "string" }
+                            },
+                            "required": ["id", "front", "back"]
+                        },
+                        "description": "Vocabulary items used in the story."
                     }
                 },
-                "required": ["paragraphs", "questions"]
+                "required": ["paragraphs", "questions", "vocabulary"]
             }
         }
     }
@@ -248,7 +275,8 @@ Return the result as a JSON object matching the defined schema.
         return jsonify({
             'status': 'success',
             'paragraphs': story_json.get('paragraphs', []),
-            'questions': story_json.get('questions', [])
+            'questions': story_json.get('questions', []),
+            'vocabulary': story_json.get('vocabulary', [])
         })
 
     except urllib.error.HTTPError as http_err:

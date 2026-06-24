@@ -20,7 +20,7 @@ No phase may be skipped. An agent starting a run must identify the current phase
 | **5** | **Technical Architecture Design** | 💻 Developer (as Architect) | (Use General Development Skills) | `tech_spec.md` (TDD) | Tech stack, module interface, and build paths locked. |
 | **6** | **Implementation & Build** | 💻 Developer | (Use General Development Skills) | Working Codebase | Clean local build, running dev server, and clean linter. |
 | **7** | **UX Polish & Juicing** | 🕹️ Game Designer / 🎨 UX Designer | [game_designer.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/game_designer.md) & [ux_designer.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/skills/ux_designer.md) | Responsive UX + Animations | Visual transitions, animations, and micro-interactions. |
-| **8** | **QA, Verification & Delivery** | 🕵️ QA Tester (Browser Agent) | (Use Browser Subagent Tools) | `walkthrough.md` | Automated browser validation and recorded demo. |
+| **8** | **QA, Verification & Delivery** | 🕵️ QA Tester | (Manual/Visual verification) | `walkthrough.md` | Direct code inspection and human testing guidelines. |
 
 ---
 
@@ -62,8 +62,8 @@ No phase may be skipped. An agent starting a run must identify the current phase
 - **Handoff Directive**: *"Verify the app's functionality and responsive layout in the browser and record a walkthrough."*
 
 ### Phase 8: QA, Verification & Delivery
-- **Action**: Spin up a browser agent. Test the app against the specification test cases across mobile, tablet, and desktop viewports. Record a video/screens of the working flow.
-- **Output**: A walkthrough report with embedded visual assets showing full functional verification.
+- **Action**: **CRITICAL RULES**: Do NOT use the browser subagent to open the page or run interactive web tests. The CDP connection is highly unstable and will fail. Conduct QA via manual code verification, API checks, and outputting manual QA test checklists for the human to run.
+- **Output**: A walkthrough report detailing the code implementation and a checklist for manual verification.
 - **Handoff Directive**: *"Log final delivery in the ledger and request staging/production deployment."*
 
 ---
@@ -83,4 +83,4 @@ At the end of every run, the current agent **MUST**:
 * **To start Phase 5**: `"Read the UX Spec. Act as the Technical Architect to design the files, modules, external dependencies, and build pipeline."`
 * **To start Phase 6**: `"Read the GDD, UX Spec, and Technical Design. Write the complete codebase in one shot and start the local dev server."`
 * **To start Phase 7**: `"Read the specs and run the dev server. Audit the visual layout and add animations, transitions, and micro-interactions."`
-* **To start Phase 8**: `"Run the browser agent to test all features against the UX spec test cases across mobile and desktop. Create a walkthrough report."`
+* **To start Phase 8**: `"Verify the codebase implementation against the spec. Formulate a checklist for manual verification. Create a walkthrough report."`

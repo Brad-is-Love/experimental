@@ -135,7 +135,8 @@ const AppState = {
     // Selected settings
     config: {
         genre: 'Daily Life',
-        difficulty: 'Novice'
+        difficulty: 'Novice',
+        language_level: ''
     },
     
     // Loaded Deck / Vocab Cards
@@ -150,6 +151,13 @@ const AppState = {
     
     // Active gameplay variables
     gameSession: {
+        inProgress: false,
+        suspendedState: null,
+        isResuming: false,
+        xpAtQuestStart: 0,
+        levelAtQuestStart: 1,
+        xpEarned: 0,
+
         clozeMatches: {},      // id -> state
         clozeCorrectCount: 0,
         
@@ -207,6 +215,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial Render
     syncHeaderStats();
     updateView();
+    checkGenerateBtnState();
 });
 
 // View Routing State Transition
@@ -239,6 +248,17 @@ function updateView() {
     }
     
     // Page Entry Initializers
+    if (AppState.gameState === 'LANDING') {
+        const resumeBtn = document.getElementById('btn-resume-quest');
+        if (resumeBtn) {
+            if (AppState.gameSession && AppState.gameSession.inProgress) {
+                resumeBtn.style.display = 'inline-flex';
+            } else {
+                resumeBtn.style.display = 'none';
+            }
+        }
+    }
+    
     if (AppState.gameState === 'LOADING_STORY') {
         startTipCarousel();
     } else {
@@ -292,6 +312,21 @@ function spawnFloatingText(element, text, type = 'xp') {
     }, 1200);
 }
 
+function awardXP(amount, element) {
+    AppState.stats.xp += amount;
+    AppState.gameSession.xpEarned = (AppState.gameSession.xpEarned || 0) + amount;
+    
+    while (AppState.stats.xp >= AppState.stats.level * 150) {
+        AppState.stats.xp -= AppState.stats.level * 150;
+        AppState.stats.level++;
+    }
+    saveCurrentState();
+    syncHeaderStats();
+    if (element) {
+        spawnFloatingText(element, `+${amount} XP`, 'xp');
+    }
+}
+
 // Persist & Load Local Storage Data
 function loadSavedState() {
     // Load Stats
@@ -329,11 +364,19 @@ function loadSavedState() {
             console.error("Failed to parse cached vocabulary");
         }
     }
+
+    // Load target language level description
+    AppState.config.language_level = localStorage.getItem('lingoquest_language_level') || '';
+    const langLevelInput = document.getElementById('target-language-level');
+    if (langLevelInput) {
+        langLevelInput.value = AppState.config.language_level;
+    }
 }
 
 function saveCurrentState() {
     localStorage.setItem('lingoquest_player_stats', JSON.stringify(AppState.stats));
     localStorage.setItem('lingoquest_api_key', AppState.apiKey);
+    localStorage.setItem('lingoquest_language_level', AppState.config.language_level);
     if (AppState.vocabulary.length > 0 && !AppState.vocabulary[0].id.startsWith('sp') && !AppState.vocabulary[0].id.startsWith('jp')) {
         localStorage.setItem('lingoquest_stored_vocab', JSON.stringify(AppState.vocabulary));
     }
@@ -366,11 +409,12 @@ function syncHeaderStats() {
 function bindHeaderEvents() {
     document.getElementById('logo-btn').addEventListener('click', () => {
         if (AppState.gameState !== 'LANDING' && AppState.gameState !== 'LOADING_STORY') {
-            if (confirm("Are you sure you want to return to the Tavern? Your current Quest progress will be lost.")) {
+            if (confirm("Return to the Tavern? You can resume your Quest progress later.")) {
                 // Clear any running timers
                 if (AppState.gameSession.speedMatchInterval) {
                     clearInterval(AppState.gameSession.speedMatchInterval);
                 }
+                AppState.gameSession.suspendedState = AppState.gameState;
                 setGameState('LANDING');
             }
         }
@@ -393,7 +437,7 @@ function bindLandingEvents() {
             AppState.config.genre = card.dataset.genre;
         });
     });
-    
+
     // Difficulty select control
     const diffButtons = document.querySelectorAll('.diff-btn');
     diffButtons.forEach(btn => {
@@ -403,6 +447,16 @@ function bindLandingEvents() {
             AppState.config.difficulty = btn.dataset.difficulty;
         });
     });
+
+    // Target Language Level input listener
+    const langLevelInput = document.getElementById('target-language-level');
+    if (langLevelInput) {
+        langLevelInput.addEventListener('input', () => {
+            AppState.config.language_level = langLevelInput.value.trim();
+            saveCurrentState();
+            checkGenerateBtnState();
+        });
+    }
     
     // Drag & Drop Deck Upload
     const dropzone = document.getElementById('deck-dropzone');
@@ -435,36 +489,33 @@ function bindLandingEvents() {
         }
     });
     
-    // Demo Decks Setup
-    document.getElementById('btn-demo-spanish').addEventListener('click', () => {
-        AppState.vocabulary = [...DemoDecks.spanish];
-        showUploadedDeckStatus(AppState.vocabulary.length, "Spanish Demo Deck");
-        AppState.config.genre = "Noir Mystery";
-        // Activate correct genre tag UI
-        genreCards.forEach(c => {
-            c.classList.remove('active');
-            if (c.dataset.genre === 'Noir Mystery') c.classList.add('active');
-        });
-        document.getElementById('btn-generate-quest').removeAttribute('disabled');
-    });
-    
-    document.getElementById('btn-demo-japanese').addEventListener('click', () => {
-        AppState.vocabulary = [...DemoDecks.japanese];
-        showUploadedDeckStatus(AppState.vocabulary.length, "Japanese Demo Deck");
-        AppState.config.genre = "Daily Life";
-        // Activate correct genre tag UI
-        genreCards.forEach(c => {
-            c.classList.remove('active');
-            if (c.dataset.genre === 'Daily Life') c.classList.add('active');
-        });
-        document.getElementById('btn-generate-quest').removeAttribute('disabled');
+    // Resume Quest Button
+    document.getElementById('btn-resume-quest').addEventListener('click', () => {
+        if (AppState.gameSession && AppState.gameSession.inProgress) {
+            AppState.gameSession.isResuming = true;
+            setGameState(AppState.gameSession.suspendedState || 'READING_STORY');
+        }
     });
     
     // Generate Quest CTA
     document.getElementById('btn-generate-quest').addEventListener('click', () => {
-        if (AppState.vocabulary.length === 0) return;
         triggerQuestGeneration();
     });
+}
+
+function checkGenerateBtnState() {
+    const generateBtn = document.getElementById('btn-generate-quest');
+    if (!generateBtn) return;
+    
+    const langLevelInput = document.getElementById('target-language-level');
+    const hasVocab = AppState.vocabulary.length > 0;
+    const hasDescription = langLevelInput && langLevelInput.value.trim().length > 0;
+    
+    if (hasVocab || hasDescription) {
+        generateBtn.removeAttribute('disabled');
+    } else {
+        generateBtn.setAttribute('disabled', 'true');
+    }
 }
 
 function handleAPKGFile(file) {
@@ -491,7 +542,7 @@ function handleAPKGFile(file) {
             AppState.vocabulary = data.vocabulary;
             saveCurrentState(); // Cache locally
             showUploadedDeckStatus(data.vocabulary.length, file.name);
-            generateBtn.removeAttribute('disabled');
+            checkGenerateBtnState();
         } else {
             alert(data.message || "Failed to read Anki deck file.");
             showUploadedDeckStatus(0, "Upload error");
@@ -552,12 +603,16 @@ function stopTipCarousel() {
 function triggerQuestGeneration() {
     setGameState('LOADING_STORY');
     
+    const langLevel = document.getElementById('target-language-level').value.trim();
+    AppState.config.language_level = langLevel;
+
     // Choose 12 cards to send to generator
     const selectedVocab = AppState.vocabulary.sort(() => 0.5 - Math.random()).slice(0, 12);
     
     const payload = {
         genre: AppState.config.genre,
         difficulty: AppState.config.difficulty,
+        language_level: langLevel,
         vocabulary: selectedVocab,
         apiKey: AppState.apiKey
     };
@@ -580,7 +635,30 @@ function triggerQuestGeneration() {
         if (data.status === 'success') {
             AppState.story.paragraphs = data.paragraphs;
             AppState.story.questions = data.questions;
-            AppState.story.vocabUsed = selectedVocab; // Cache vocab items active in this round
+            
+            // Set vocabulary cards actually used in the story tags
+            if (data.vocabulary && data.vocabulary.length > 0) {
+                AppState.story.vocabUsed = data.vocabulary;
+            } else {
+                const usedIds = new Set();
+                data.paragraphs.forEach(para => {
+                    const regex = /<vocab\s+id=["']([^"']+)["']/g;
+                    let match;
+                    while ((match = regex.exec(para)) !== null) {
+                        usedIds.add(match[1]);
+                    }
+                });
+                AppState.story.vocabUsed = selectedVocab.filter(v => usedIds.has(v.id));
+            }
+
+            // Initialize game session tracking
+            AppState.gameSession.inProgress = true;
+            AppState.gameSession.xpAtQuestStart = AppState.stats.xp;
+            AppState.gameSession.levelAtQuestStart = AppState.stats.level;
+            AppState.gameSession.xpEarned = 0;
+            AppState.gameSession.isResuming = false;
+            AppState.gameSession.suspendedState = null;
+
             setGameState('READING_STORY');
         } else {
             alert(data.message || "Failed to generate story details.");
@@ -630,6 +708,10 @@ function bindReadingEvents() {
     document.getElementById('btn-start-challenges').addEventListener('click', () => {
         // Close popover
         document.getElementById('vocab-popover').classList.remove('visible');
+        if (!AppState.gameSession.readingXPAwarded) {
+            AppState.gameSession.readingXPAwarded = true;
+            awardXP(20);
+        }
         setGameState('CHALLENGE_CLOZE');
     });
 }
@@ -637,7 +719,7 @@ function bindReadingEvents() {
 function setupReadingScreen() {
     // Setup badges
     document.getElementById('story-genre-badge').textContent = AppState.config.genre;
-    document.getElementById('story-difficulty-badge').textContent = AppState.config.difficulty;
+    document.getElementById('story-difficulty-badge').textContent = AppState.config.language_level || AppState.config.difficulty;
     
     // Setup paragraph rendering
     const container = document.getElementById('story-paragraphs-container');
@@ -729,14 +811,18 @@ function openVocabPopover(anchorEl, wordId) {
     popover.classList.add('visible');
 }
 
-// SCREEN 4: GAME 1 - CLOZE RIFT (DRAG & DROP)
+// SCREEN 4: GAME 1 - CLOZE RIFT (DRAG & DROP / CLICK TO PLACE)
 function setupClozeScreen() {
     const container = document.getElementById('cloze-story-paragraphs');
     container.innerHTML = '';
     
-    // Initialize sessions state
-    AppState.gameSession.clozeMatches = {};
-    AppState.gameSession.clozeCorrectCount = 0;
+    const isResuming = AppState.gameSession.isResuming;
+    
+    if (!isResuming) {
+        // Initialize sessions state
+        AppState.gameSession.clozeMatches = {};
+        AppState.gameSession.clozeCorrectCount = 0;
+    }
     
     // Map paragraphs with blank slots
     AppState.story.paragraphs.forEach(paragraph => {
@@ -754,17 +840,25 @@ function setupClozeScreen() {
         const targetWord = tag.textContent;
         usedIds.add(id);
         
-        // Cache slot info
-        AppState.gameSession.clozeMatches[id] = {
-            id: id,
-            target: targetWord,
-            solved: false
-        };
+        if (!isResuming) {
+            // Cache slot info
+            AppState.gameSession.clozeMatches[id] = {
+                id: id,
+                target: targetWord,
+                solved: false
+            };
+        }
         
+        const match = AppState.gameSession.clozeMatches[id];
         const drop = document.createElement('div');
-        drop.className = 'drop-zone';
-        drop.dataset.wordId = id;
-        drop.textContent = '?';
+        if (match && match.solved) {
+            drop.className = 'drop-zone correct';
+            drop.textContent = match.target;
+        } else {
+            drop.className = 'drop-zone';
+            drop.dataset.wordId = id;
+            drop.textContent = '?';
+        }
         
         if (tag.parentNode) {
             tag.parentNode.replaceChild(drop, tag);
@@ -775,8 +869,15 @@ function setupClozeScreen() {
     const tray = document.getElementById('cloze-pills-tray');
     tray.innerHTML = '';
     
+    const totalToSolve = Object.keys(AppState.gameSession.clozeMatches).length;
+    if (AppState.gameSession.clozeCorrectCount >= totalToSolve) {
+        triggerClozeRiftCompletion();
+        return;
+    }
+    
     const relevantCards = AppState.story.vocabUsed.filter(v => usedIds.has(v.id));
-    const scrambledCards = [...relevantCards].sort(() => 0.5 - Math.random());
+    const unsolvedCards = relevantCards.filter(v => !AppState.gameSession.clozeMatches[v.id].solved);
+    const scrambledCards = [...unsolvedCards].sort(() => 0.5 - Math.random());
     
     scrambledCards.forEach(card => {
         const pill = document.createElement('div');
@@ -795,10 +896,28 @@ function setupClozeScreen() {
             pill.classList.remove('dragging');
         });
         
+        // Tap/click events for mobile selection
+        pill.addEventListener('click', () => {
+            const selectedZone = container.querySelector('.drop-zone.selected');
+            if (selectedZone) {
+                const targetId = selectedZone.dataset.wordId;
+                validateClozeDrop(card.id, targetId, selectedZone);
+                selectedZone.classList.remove('selected');
+            } else {
+                const wasSelected = pill.classList.contains('selected');
+                // Clear other selections
+                container.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('selected'));
+                tray.querySelectorAll('.drag-pill').forEach(p => p.classList.remove('selected'));
+                if (!wasSelected) {
+                    pill.classList.add('selected');
+                }
+            }
+        });
+        
         tray.appendChild(pill);
     });
     
-    // Setup drop events on drop zones
+    // Setup drop events and click events on drop zones
     container.querySelectorAll('.drop-zone').forEach(zone => {
         zone.addEventListener('dragover', (e) => {
             e.preventDefault();
@@ -822,6 +941,26 @@ function setupClozeScreen() {
             
             validateClozeDrop(cardId, targetId, zone);
         });
+        
+        zone.addEventListener('click', () => {
+            if (zone.classList.contains('correct')) return;
+            
+            const selectedPill = tray.querySelector('.drag-pill.selected');
+            if (selectedPill) {
+                const cardId = selectedPill.dataset.wordId;
+                const targetId = zone.dataset.wordId;
+                validateClozeDrop(cardId, targetId, zone);
+                selectedPill.classList.remove('selected');
+            } else {
+                const wasSelected = zone.classList.contains('selected');
+                // Clear other selections
+                container.querySelectorAll('.drop-zone').forEach(z => z.classList.remove('selected'));
+                tray.querySelectorAll('.drag-pill').forEach(p => p.classList.remove('selected'));
+                if (!wasSelected) {
+                    zone.classList.add('selected');
+                }
+            }
+        });
     });
 }
 
@@ -838,7 +977,7 @@ function validateClozeDrop(cardId, targetId, zoneEl) {
         
         // Sound and Floating text juice
         LingoAudio.playCorrect();
-        spawnFloatingText(zoneEl, "+10 XP", 'xp');
+        awardXP(10, zoneEl);
         
         // Remove pill from tray
         const pill = document.querySelector(`.drag-pill[data-word-id="${cardId}"]`);
@@ -894,15 +1033,24 @@ function bindComprehensionEvents() {
         if (AppState.gameSession.compCurrentQuestion < 3) {
             renderComprehensionQuestion();
         } else {
+            // Check for perfect comprehension bonus!
+            if (AppState.gameSession.compCorrectCount === 3 && !AppState.gameSession.compPerfectBonusAwarded) {
+                AppState.gameSession.compPerfectBonusAwarded = true;
+                awardXP(15);
+            }
             setGameState('CHALLENGE_SPEED_MATCH');
         }
     });
 }
 
 function setupComprehensionScreen() {
-    AppState.gameSession.compCurrentQuestion = 0;
-    AppState.gameSession.compCorrectCount = 0;
-    AppState.gameSession.compAnswers = [];
+    const isResuming = AppState.gameSession.isResuming;
+    if (!isResuming) {
+        AppState.gameSession.compCurrentQuestion = 0;
+        AppState.gameSession.compCorrectCount = 0;
+        AppState.gameSession.compAnswers = [];
+        AppState.gameSession.compPerfectBonusAwarded = false;
+    }
     
     renderComprehensionQuestion();
 }
@@ -920,10 +1068,26 @@ function renderComprehensionQuestion() {
         if (idx < qIndex) dot.classList.add('completed');
     });
     
+    const chosenIdx = AppState.gameSession.compAnswers[qIndex];
+    const isAnswered = chosenIdx !== undefined;
+
     // Reset layout
     document.getElementById('comp-question-title').textContent = questionData.question;
-    document.getElementById('comp-explanation-box').style.display = 'none';
-    document.getElementById('btn-next-question').style.display = 'none';
+    
+    if (isAnswered) {
+        document.getElementById('comp-explanation-text').textContent = questionData.explanation;
+        document.getElementById('comp-explanation-box').style.display = 'block';
+        const nextBtn = document.getElementById('btn-next-question');
+        nextBtn.style.display = 'block';
+        if (qIndex === 2) {
+            nextBtn.innerHTML = `Proceed to Speed Match (+30 XP) <i class="fa-solid fa-circle-arrow-right"></i>`;
+        } else {
+            nextBtn.innerHTML = `Next Question <i class="fa-solid fa-circle-arrow-right"></i>`;
+        }
+    } else {
+        document.getElementById('comp-explanation-box').style.display = 'none';
+        document.getElementById('btn-next-question').style.display = 'none';
+    }
     
     const optionsContainer = document.getElementById('comp-options-container');
     optionsContainer.innerHTML = '';
@@ -939,11 +1103,19 @@ function renderComprehensionQuestion() {
             <span class="option-text">${option}</span>
         `;
         
-        card.addEventListener('click', () => {
-            if (AppState.gameSession.compAnswers[qIndex] !== undefined) return; // Already answered
-            
-            validateComprehensionAnswer(idx, qIndex, card);
-        });
+        if (isAnswered) {
+            card.classList.add('locked');
+            if (questionData.options[idx] === questionData.answer) {
+                card.classList.add('correct');
+            } else if (idx === chosenIdx) {
+                card.classList.add('incorrect');
+            }
+        } else {
+            card.addEventListener('click', () => {
+                if (AppState.gameSession.compAnswers[qIndex] !== undefined) return; // Already answered
+                validateComprehensionAnswer(idx, qIndex, card);
+            });
+        }
         
         optionsContainer.appendChild(card);
     });
@@ -969,7 +1141,7 @@ function validateComprehensionAnswer(chosenIdx, qIndex, cardEl) {
     if (isCorrect) {
         AppState.gameSession.compCorrectCount++;
         LingoAudio.playCorrect();
-        spawnFloatingText(cardEl, "+10 XP", 'xp');
+        awardXP(10, cardEl);
         // Confetti burst
         if (typeof confetti === 'function') {
             confetti({
@@ -1014,47 +1186,59 @@ function bindSpeedMatchEvents() {
 
 function setupSpeedMatchScreen() {
     const grid = document.getElementById('speed-match-grid');
-    grid.innerHTML = '';
     
-    // Reset vars
-    AppState.gameSession.speedMatchTimer = 20.0;
-    AppState.gameSession.speedSelectedCard = null;
-    AppState.gameSession.speedMatchedCount = 0;
+    const isResuming = AppState.gameSession.isResuming;
+    AppState.gameSession.isResuming = false; // Reset the resume flag
+
+    // Select words from round: take vocab actually used, slice up to 6
+    const pool = AppState.story.vocabUsed.slice(0, 6);
+    
+    if (!isResuming) {
+        grid.innerHTML = '';
+        
+        // Reset vars
+        AppState.gameSession.speedMatchTimer = 20.0;
+        AppState.gameSession.speedSelectedCard = null;
+        AppState.gameSession.speedMatchedCount = 0;
+        
+        // Create card elements
+        const cards = [];
+        pool.forEach(item => {
+            cards.push({ id: item.id, text: item.front, type: 'front' });
+            cards.push({ id: item.id, text: item.back, type: 'back' });
+        });
+        
+        // Scramble randomly
+        const scrambled = cards.sort(() => 0.5 - Math.random());
+        
+        // Inject into DOM
+        scrambled.forEach((card, idx) => {
+            const cardEl = document.createElement('div');
+            cardEl.className = 'speed-card';
+            cardEl.dataset.id = card.id;
+            cardEl.dataset.type = card.type;
+            cardEl.dataset.index = idx;
+            cardEl.textContent = card.text;
+            
+            cardEl.addEventListener('click', () => {
+                handleSpeedCardClick(cardEl);
+            });
+            
+            grid.appendChild(cardEl);
+        });
+    }
     
     const timerContainer = document.querySelector('.speed-match-timer-container');
     if (timerContainer) {
         timerContainer.classList.remove('warning-pulse');
     }
     
-    // Select 6 words from round
-    const pool = AppState.story.vocabUsed.slice(0, 6);
-    
-    // Create 12 card elements (6 fronts, 6 backs)
-    const cards = [];
-    pool.forEach(item => {
-        cards.push({ id: item.id, text: item.front, type: 'front' });
-        cards.push({ id: item.id, text: item.back, type: 'back' });
-    });
-    
-    // Scramble randomly
-    const scrambled = cards.sort(() => 0.5 - Math.random());
-    
-    // Inject into DOM
-    scrambled.forEach((card, idx) => {
-        const cardEl = document.createElement('div');
-        cardEl.className = 'speed-card';
-        cardEl.dataset.id = card.id;
-        cardEl.dataset.type = card.type;
-        cardEl.dataset.index = idx;
-        cardEl.textContent = card.text;
-        
-        cardEl.addEventListener('click', () => {
-            handleSpeedCardClick(cardEl);
-        });
-        
-        grid.appendChild(cardEl);
-    });
-    
+    // Update instruction text dynamically
+    const instructionEl = document.querySelector('#screen-speed-match .story-instruction');
+    if (instructionEl) {
+        instructionEl.innerHTML = `<i class="fa-solid fa-clock-rotate-left"></i> Match ${pool.length} pairs before time runs out! (+1.5s error penalty)`;
+    }
+
     // Launch countdown timer
     updateSpeedMatchTimerUI();
     
@@ -1113,6 +1297,8 @@ function handleSpeedCardClick(cardEl) {
         const secondId = cardEl.dataset.id;
         const secondType = cardEl.dataset.type;
         
+        const poolLimit = AppState.story.vocabUsed.slice(0, 6).length;
+        
         if (firstId === secondId && firstType !== secondType) {
             // Correct Pair Match!
             selected.classList.remove('selected');
@@ -1126,8 +1312,12 @@ function handleSpeedCardClick(cardEl) {
             AppState.gameSession.speedMatchedCount++;
             
             // Check completed
-            if (AppState.gameSession.speedMatchedCount >= 6) {
+            if (AppState.gameSession.speedMatchedCount >= poolLimit) {
                 clearInterval(AppState.gameSession.speedMatchInterval);
+                // Award Speed Match XP in real-time!
+                const speedTime = 20.0 - AppState.gameSession.speedMatchTimer;
+                const speedXP = 20 + (speedTime <= 10.0 ? 10 : 0);
+                awardXP(speedXP);
                 // Pause briefly before victory screen
                 setTimeout(() => {
                     setGameState('VICTORY');
@@ -1165,24 +1355,27 @@ function triggerSpeedMatchFailure() {
 // SCREEN 7: VICTORY & STATS CALCULATION
 function bindVictoryEvents() {
     document.getElementById('btn-return-landing').addEventListener('click', () => {
+        AppState.gameSession.inProgress = false; // Reset quest progress state on successful finish
         setGameState('LANDING');
         syncHeaderStats();
     });
 }
 
 function setupVictoryScreen() {
+    AppState.gameSession.inProgress = false; // Quest completed!
+
     // Generate XP Details
-    const clozeXP = 30;
+    const clozeXP = AppState.gameSession.clozeCorrectCount * 10;
     const compScore = AppState.gameSession.compCorrectCount;
     const compXP = compScore * 10 + (compScore === 3 ? 15 : 0); // 10 per q, +15 perfect
     
     const speedTime = 20.0 - AppState.gameSession.speedMatchTimer;
     const speedXP = 20 + (speedTime <= 10.0 ? 10 : 0); // 20 standard, +10 speed bonus
-    const totalXP = 20 + clozeXP + compXP + speedXP; // Story read: 20
+    const totalXP = AppState.gameSession.xpEarned || (20 + clozeXP + compXP + speedXP); // Story read: 20
     const totalCoins = 15;
     
     // Update labels
-    document.getElementById('victory-quest-summary').textContent = `${AppState.config.genre} Quest solved on ${AppState.config.difficulty} difficulty.`;
+    document.getElementById('victory-quest-summary').textContent = `${AppState.config.genre} Quest solved.`;
     document.getElementById('victory-xp-cloze').textContent = `+${clozeXP} XP`;
     document.getElementById('victory-xp-comp').textContent = `+${compXP} XP (${compScore}/3 correct)`;
     document.getElementById('victory-xp-speed').textContent = `+${speedXP} XP (${speedTime.toFixed(1)}s elapsed)`;
@@ -1198,11 +1391,7 @@ function setupVictoryScreen() {
         });
     }
     
-    // Apply gains and check for Level Up
-    const oldLevel = AppState.stats.level;
-    let oldXP = AppState.stats.xp;
-    
-    AppState.stats.xp += totalXP;
+    // Apply coin gains (XP has already been added in real-time!)
     AppState.stats.coins += totalCoins;
     
     // Calculate Streak
@@ -1222,13 +1411,9 @@ function setupVictoryScreen() {
     }
     AppState.stats.lastActive = todayStr;
     
-    // Process Level Ups
-    let leveledUp = false;
-    while (AppState.stats.xp >= AppState.stats.level * 150) {
-        AppState.stats.xp -= AppState.stats.level * 150;
-        AppState.stats.level++;
-        leveledUp = true;
-    }
+    // Render progress circle animation starting from initial quest values
+    const oldLevel = AppState.gameSession.levelAtQuestStart || 1;
+    const oldXP = AppState.gameSession.xpAtQuestStart || 0;
     
     // Render progress circle animation
     setTimeout(() => {
@@ -1246,7 +1431,8 @@ function setupVictoryScreen() {
     // Save state
     saveCurrentState();
     
-    // Show Level Up Modal Overlay if unlocked
+    // Show Level Up Modal Overlay if unlocked during this quest
+    const leveledUp = AppState.stats.level > oldLevel;
     if (leveledUp) {
         setTimeout(() => {
             triggerLevelUpModal(AppState.stats.level);
@@ -1466,8 +1652,12 @@ function bindSettingsEvents() {
                 soundEnabled: true
             };
             AppState.vocabulary = [];
+            AppState.gameSession.inProgress = false;
+            AppState.gameSession.suspendedState = null;
+            AppState.gameSession.isResuming = false;
             localStorage.removeItem('lingoquest_player_stats');
             localStorage.removeItem('lingoquest_stored_vocab');
+            localStorage.removeItem('lingoquest_language_level');
             saveCurrentState();
             syncHeaderStats();
             
