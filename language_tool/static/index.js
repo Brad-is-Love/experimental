@@ -563,7 +563,8 @@ function showUploadedDeckStatus(count, filename) {
     
     if (count > 0) {
         statusText.innerHTML = `<i class="fa-solid fa-circle-check text-success"></i> ${filename} Loaded`;
-        secondaryText.textContent = `${count} vocabulary items ready for Quest generator.`;
+        const countDisplay = count >= 250 ? '250+' : count;
+        secondaryText.textContent = `Found ${countDisplay} young cards ready for Quest generator.`;
         icon.className = "fa-solid fa-box-open upload-icon text-success";
         document.getElementById('btn-generate-quest').removeAttribute('disabled');
     } else {
@@ -606,8 +607,8 @@ function triggerQuestGeneration() {
     const langLevel = document.getElementById('target-language-level').value.trim();
     AppState.config.language_level = langLevel;
 
-    // Choose 12 cards to send to generator
-    const selectedVocab = AppState.vocabulary.sort(() => 0.5 - Math.random()).slice(0, 12);
+    // Choose 14 cards to send to generator
+    const selectedVocab = AppState.vocabulary.sort(() => 0.5 - Math.random()).slice(0, 14);
     
     const payload = {
         genre: AppState.config.genre,

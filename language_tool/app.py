@@ -87,7 +87,7 @@ def upload_file():
         JOIN notes n ON c.nid = n.id
         WHERE c.type IN (1, 2) AND c.ivl < 21
         ORDER BY RANDOM()
-        LIMIT 12
+        LIMIT 250
         """
 
         try:
@@ -116,7 +116,7 @@ def upload_file():
             FROM cards c
             JOIN notes n ON c.nid = n.id
             ORDER BY RANDOM()
-            LIMIT 12
+            LIMIT 250
             """
             try:
                 c.execute(fallback_query)
