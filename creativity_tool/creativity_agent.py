@@ -36,23 +36,25 @@ class Colors:
     END = '\033[0m'
     BOLD = '\033[1m'
 
+def _fetch_json(url):
+    """Helper function to fetch and parse JSON from a given URL."""
+    req = urllib.request.Request(url, headers={'User-Agent': 'SynapticSparks/1.0 (creativity tool)'})
+    with urllib.request.urlopen(req, timeout=5) as response:
+        return json.loads(response.read().decode('utf-8'))
+
 def fetch_wikipedia_spark():
     """Fetches a random Wikipedia article title and its REST summary, returning a dictionary."""
     try:
         # 1. Fetch a random page title
         random_url = 'https://en.wikipedia.org/w/api.php?action=query&format=json&list=random&rnnamespace=0&rnlimit=1'
-        req = urllib.request.Request(random_url, headers={'User-Agent': 'SynapticSparks/1.0 (creativity tool)'})
-        with urllib.request.urlopen(req, timeout=5) as response:
-            data = json.loads(response.read().decode('utf-8'))
+        data = _fetch_json(random_url)
         
         title = data['query']['random'][0]['title']
         
         # 2. Fetch the summary for that page
         safe_title = urllib.parse.quote(title.replace(' ', '_'))
         summary_url = f'https://en.wikipedia.org/api/rest_v1/page/summary/{safe_title}'
-        req = urllib.request.Request(summary_url, headers={'User-Agent': 'SynapticSparks/1.0 (creativity tool)'})
-        with urllib.request.urlopen(req, timeout=5) as response:
-            summary_data = json.loads(response.read().decode('utf-8'))
+        summary_data = _fetch_json(summary_url)
             
         return {
             'title': summary_data.get('title', title),

@@ -80,6 +80,20 @@ def upload_file():
         conn = sqlite3.connect(db_path)
         c = conn.cursor()
 
+        def extract_vocabulary_from_rows(rows):
+            vocab = []
+            for row in rows:
+                note_id = str(row[0])
+                flds = row[1]
+                parts = flds.split('\x1f')
+                if len(parts) >= 2:
+                    vocab.append({
+                        'id': note_id,
+                        'front': clean_html(parts[0]),
+                        'back': clean_html(parts[1])
+                    })
+            return vocab
+
         # Query to extract "learning" or "young" cards (interval < 21 days)
         query = """
         SELECT n.id, n.flds
@@ -97,17 +111,7 @@ def upload_file():
             app.logger.error(f"Database query failed, trying fallback: {db_err}")
             rows = []
 
-        vocabulary = []
-        for row in rows:
-            note_id = str(row[0])
-            flds = row[1]
-            parts = flds.split('\x1f')
-            if len(parts) >= 2:
-                vocabulary.append({
-                    'id': note_id,
-                    'front': clean_html(parts[0]),
-                    'back': clean_html(parts[1])
-                })
+        vocabulary = extract_vocabulary_from_rows(rows)
 
         # Fallback: if no young cards match or query failed, select any random cards from the deck
         if not vocabulary:
@@ -121,16 +125,7 @@ def upload_file():
             try:
                 c.execute(fallback_query)
                 rows = c.fetchall()
-                for row in rows:
-                    note_id = str(row[0])
-                    flds = row[1]
-                    parts = flds.split('\x1f')
-                    if len(parts) >= 2:
-                        vocabulary.append({
-                            'id': note_id,
-                            'front': clean_html(parts[0]),
-                            'back': clean_html(parts[1])
-                        })
+                vocabulary = extract_vocabulary_from_rows(rows)
             except Exception as fallback_err:
                 app.logger.error(f"Fallback database query failed: {fallback_err}")
 
