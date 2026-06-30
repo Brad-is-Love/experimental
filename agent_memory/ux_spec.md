@@ -246,3 +246,81 @@ To support instant demo playing and testing when an Anki deck is not uploaded, t
     *   B) Llamó a la policía local.
     *   C) Escondió el maletín. (Correct)
     *   D) Encendió una cerilla.
+
+
+---
+
+# UX Specification: Smallest Step
+
+## 1. User Persona & Motivations
+- **Primary Persona**: An ambitious but easily overwhelmed individual trying to tackle massive goals (e.g., "Build a mobile app", "Write a novel").
+- **Key Pain Point**: The sheer size of a large goal causes anxiety, leading to procrastination or paralysis.
+- **Goal**: Break down massive goals into ultra-small, immediate, and actionable daily micro-tasks to build momentum.
+- **The 3-Second Test**: Upon loading, the screen presents a clean, distraction-free input field asking: "What is your massive goal?".
+
+## 2. User Journey & Core Flow
+```mermaid
+graph TD
+    A[LANDING STATE: Enter Massive Goal] --> B[AI Breakdown: Generating initial micro-steps]
+    B --> C[TIMELINE STATE: View current micro-step with fading future steps]
+    C --> D{User Action}
+    D -->|Click Complete| E[Snap Animation & Streak Update]
+    D -->|Click Help Me Execute| F[AI Assistant Interaction Modal]
+    D -->|Click Break Down Further| G[AI refines current boss step into smaller steps]
+    E --> C
+    F --> E
+    G --> C
+```
+
+## 3. State Machine & Client-Side Variables
+The application relies on local storage for persistence and uses a simple reactive state machine.
+
+### Central State Variables
+- `currentGoal`: string (The overarching massive goal)
+- `timelineSteps`: array of objects `{ id: string, title: string, completed: boolean, level: number }`
+- `currentStreak`: integer
+- `lastCompletedDate`: string (ISO date)
+
+### Session State Variables
+- `appState`: enum (`INPUT_GOAL`, `GENERATING_STEPS`, `TIMELINE_ACTIVE`, `ASSISTANT_ACTIVE`)
+- `currentActiveStepIndex`: integer (Index of the currently active micro-task)
+
+### Transition Rules
+1. `INPUT_GOAL` -> User submits goal -> `GENERATING_STEPS`
+2. `GENERATING_STEPS` -> AI returns steps -> `TIMELINE_ACTIVE`
+3. `TIMELINE_ACTIVE` -> User completes step -> Update streak -> Reveal next step -> `TIMELINE_ACTIVE`
+4. `TIMELINE_ACTIVE` -> User requests help -> `ASSISTANT_ACTIVE`
+5. `ASSISTANT_ACTIVE` -> Task completed with help -> `TIMELINE_ACTIVE`
+
+## 4. Screen Specifications & Layout Skeletons
+
+### Screen A: Landing Screen (`INPUT_GOAL` state)
+- **Focal Point**: A single, large, centrally aligned input box.
+- **Visuals**: A clean, minimalist background (e.g., calming gradient or solid color).
+- **Interactions**: Pressing Enter or clicking a submit button transitions to the AI generation state.
+
+### Screen B: Main Timeline (`TIMELINE_ACTIVE` state)
+- **Focal Point**: The currently active micro-task at the top of the timeline.
+- **Layout**: A vertical list.
+  - The *current* task is opaque, fully styled, and interactive (Checkbox, "Help Me Execute", "Break down further" if boss step).
+  - *Upcoming* tasks are placed below it, progressively blurred, faded, and scaled down ("fading future" UI).
+- **Streak Tracker**: A glowing visual indicator (e.g., a flame or chart) showing the current daily streak.
+
+### Screen C: AI Assistant Modal (`ASSISTANT_ACTIVE` state)
+- **Focal Point**: Chat interface or suggested actions provided by the AI.
+- **Layout**: A modal overlay or a side panel that slides in.
+- **Interactions**: User can converse with the AI or click on auto-generated action buttons (e.g., "Draft email", "Search web").
+
+## 5. Aesthetics & Styling Guide
+- **Theme**: Calming, minimalist, "Zen".
+- **Fading Future UI**: Upcoming steps use CSS `filter: blur(Xpx); opacity: 0.X; transform: scale(0.X)`.
+- **Animations**:
+  - *Check-off snap*: When a task is completed, it strikes through, briefly turns a satisfying success color (e.g., green), and then the whole timeline slides up with a smooth, snappy spring animation.
+  - *Streak Glow*: The streak indicator intensity and glow size increase with higher streaks.
+
+## 6. Mock Data & Assets
+- **Mock Goal**: "Build a mobile app"
+- **Mock Steps**:
+  1. "Create a new folder on your desktop called 'App Project'." (Level 1 - Onboarding)
+  2. "Open a text editor and create a file named 'ideas.txt'." (Level 1)
+  3. "Write down 3 core features of your app." (Level 2)
