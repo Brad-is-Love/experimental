@@ -38,6 +38,7 @@ def upload_file():
     if 'file' not in request.files:
         return jsonify({'status': 'error', 'message': 'No file part'}), 400
     file = request.files['file']
+    vocab_mode = request.form.get('vocab_mode', 'young')
     if file.filename == '':
         return jsonify({'status': 'error', 'message': 'No selected file'}), 400
     if not file.filename.endswith('.apkg'):
@@ -94,15 +95,26 @@ def upload_file():
                     })
             return vocab
 
-        # Query to extract "learning" or "young" cards (interval < 21 days)
-        query = """
-        SELECT n.id, n.flds
-        FROM cards c
-        JOIN notes n ON c.nid = n.id
-        WHERE c.type IN (1, 2) AND c.ivl < 21
-        ORDER BY RANDOM()
-        LIMIT 250
-        """
+        # Configure query based on vocab mode
+        if vocab_mode == 'new':
+            query = """
+            SELECT n.id, n.flds
+            FROM cards c
+            JOIN notes n ON c.nid = n.id
+            WHERE c.type = 0
+            ORDER BY c.due ASC
+            LIMIT 250
+            """
+        else:
+            # Default to young
+            query = """
+            SELECT n.id, n.flds
+            FROM cards c
+            JOIN notes n ON c.nid = n.id
+            WHERE c.type IN (1, 2) AND c.ivl < 21
+            ORDER BY c.due ASC
+            LIMIT 250
+            """
 
         try:
             c.execute(query)
