@@ -128,3 +128,34 @@ To make interactions feel premium and highly responsive, the app employs micro-a
     }
     ```
 *   **Level Up Event**: A full-screen celebration modal with floating XP numbers, star particle bursts, and an overlay congratulating the player.
+
+---
+
+# Game Design Document: Smallest Step
+
+## 1. High-Level Concept
+- **One-Sentence Hook**: Smallest Step breaks massive, anxiety-inducing goals into a deeply visual, fading vertical timeline of ultra-small daily micro-tasks, acting as a dynamic assistant to keep you moving forward.
+- **Core Loop**: Enter a large goal -> AI breaks it down into immediate micro-steps -> User completes step (with AI assistant help if needed) -> Next step is revealed on the timeline.
+- **Target Emotion**: Relief from overwhelm; the satisfying, steady momentum of crossing off tiny, achievable tasks.
+
+## 2. Core Mechanics
+- **Player Actions**:
+  - Input a massive goal (e.g., "Build a mobile app").
+  - Click "Complete" on the current micro-step on the timeline.
+  - Click "Help me execute" for the dynamic AI assistant to perform or guide the current micro-step (e.g., "Shall I search for prices?").
+- **Victory Condition**: Completing the daily micro-step, maintaining the daily momentum streak, and eventually reaching the bottom of the timeline (the massive goal).
+- **Failure Condition**: Breaking the daily streak by not completing the current micro-step, causing a loss of streak multiplier.
+
+## 3. Progression & Level Structure
+- **Level 1 (Onboarding)**: User inputs their first goal. The AI instantly generates just the first 3 micro-steps to prevent overwhelm. The very first step is intentionally trivial (e.g., "Create a folder on your computer").
+- **Level 2 (Introduction of complexity)**: After a 3-day streak, the AI assistant introduces the "Help me execute" feature for slightly more complex steps (e.g., researching a topic).
+- **Level 3 (The Test)**: The user encounters a "boss" step (a slightly larger task). The UI encourages them to use a "Break down further" button if they feel overwhelmed, turning the boss step into 3 more micro-steps.
+
+## 4. "Juice" & Aesthetics
+- **Visual Effects**:
+  - A "fading future" vertical timeline UI, where upcoming steps are blurred/faded at the bottom of the screen to keep focus on the present.
+  - A satisfying "check-off snap" animation when a step is completed, sliding the timeline up.
+  - Streak/chart visualizations that glow more intensely as the streak increases.
+- **Sound Effects**:
+  - A crisp, satisfying 'click' or 'pop' when completing a step.
+  - A rising, melodic chime when extending a multi-day streak.
