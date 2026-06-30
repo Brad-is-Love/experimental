@@ -136,9 +136,12 @@ const AppState = {
     config: {
         genre: 'Daily Life',
         difficulty: 'Novice',
+        vocabMode: 'young', // 'young' or 'new'
         language_level: ''
     },
     
+    lastUploadedFile: null,
+
     // Loaded Deck / Vocab Cards
     vocabulary: [], // Array of { id, front, back }
     
@@ -281,6 +284,9 @@ function updateView() {
         setupSpeedMatchScreen();
     }
     
+    // Clear resuming flag AFTER setting up the view
+    AppState.gameSession.isResuming = false;
+
     if (AppState.gameState === 'VICTORY') {
         setupVictoryScreen();
     }
@@ -439,12 +445,27 @@ function bindLandingEvents() {
     });
 
     // Difficulty select control
-    const diffButtons = document.querySelectorAll('.diff-btn');
+    const diffButtons = document.querySelectorAll('.difficulty-selector:not(#vocab-focus-selector) .diff-btn');
     diffButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             diffButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             AppState.config.difficulty = btn.dataset.difficulty;
+        });
+    });
+
+    // Vocabulary Focus select control
+    const vocabButtons = document.querySelectorAll('.vocab-btn');
+    vocabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            vocabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            AppState.config.vocabMode = btn.dataset.mode;
+
+            // Re-process uploaded file if one exists
+            if (AppState.lastUploadedFile) {
+                handleAPKGFile(AppState.lastUploadedFile);
+            }
         });
     });
 
@@ -524,8 +545,11 @@ function handleAPKGFile(file) {
         return;
     }
     
+    AppState.lastUploadedFile = file;
+
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('vocab_mode', AppState.config.vocabMode);
     
     // Disable elements during upload
     const generateBtn = document.getElementById('btn-generate-quest');
@@ -564,7 +588,8 @@ function showUploadedDeckStatus(count, filename) {
     if (count > 0) {
         statusText.innerHTML = `<i class="fa-solid fa-circle-check text-success"></i> ${filename} Loaded`;
         const countDisplay = count >= 250 ? '250+' : count;
-        secondaryText.textContent = `Found ${countDisplay} young cards ready for Quest generator.`;
+        const modeText = AppState.config.vocabMode === 'new' ? 'new' : 'young';
+        secondaryText.textContent = `Found ${countDisplay} ${modeText} cards ready for Quest generator.`;
         icon.className = "fa-solid fa-box-open upload-icon text-success";
         document.getElementById('btn-generate-quest').removeAttribute('disabled');
     } else {
@@ -1189,7 +1214,6 @@ function setupSpeedMatchScreen() {
     const grid = document.getElementById('speed-match-grid');
     
     const isResuming = AppState.gameSession.isResuming;
-    AppState.gameSession.isResuming = false; // Reset the resume flag
 
     // Select words from round: take vocab actually used, slice up to 6
     const pool = AppState.story.vocabUsed.slice(0, 6);
