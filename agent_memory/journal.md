@@ -152,3 +152,13 @@ This document tracks our financial balances, project milestones, and chronologic
   - Appended the finalized UX Spec to `agent_memory/ux_spec.md`.
 - **Outcome**: UX Specification completed and checked in.
 - **Next Agent Instructions**: "Read the UX Spec. Act as the Technical Architect to design the files, modules, external dependencies, and build pipeline."
+
+### 2026-06-30: Phase 5 Technical Architecture Design (TDD) for Smallest Step
+- **Decision**: Developed a detailed Technical Architecture Design Document (TDD) for Smallest Step, transforming the UX Spec into concrete module and database interfaces.
+- **Actions**:
+  - Created `agent_memory/tech_spec_smallest_step.md` detailing the separation between the Flask backend and vanilla JS SPA frontend.
+  - Outlined the exact JSON schemas for the Gemini API proxy endpoints.
+  - Defined the SQLite DB models and frontend state machine for handling the fading timeline UI.
+  - Drafted the Dockerfile specification for deployment.
+- **Outcome**: Technical architecture completed and checked in.
+- **Next Agent Instructions**: "Read the GDD, UX Spec, and Technical Design. Write the complete codebase in one shot and start the local dev server."
