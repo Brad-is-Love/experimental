@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smallest Step</title>
+    <link rel="stylesheet" href="/static/index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+
+        <!-- Header -->
+        <header>
+            <div class="logo">Smallest Step</div>
+            <div class="streak-tracker" id="streak-tracker" style="display: none;">
+                <span class="streak-icon">🔥</span>
+                <span id="streak-count">0</span> Day Streak
+            </div>
+        </header>
+
+        <!-- INPUT_GOAL State -->
+        <main id="screen-input" class="screen active">
+            <div class="input-container">
+                <h1>What is your massive goal?</h1>
+                <input type="text" id="goal-input" placeholder="e.g., Build a mobile app, Write a novel..." autocomplete="off">
+                <button id="btn-submit-goal" class="primary-btn">Begin</button>
+            </div>
+        </main>
+
+        <!-- GENERATING_STEPS State -->
+        <main id="screen-loading" class="screen">
+            <div class="loading-container">
+                <div class="spinner"></div>
+                <p>Finding the absolute smallest first steps...</p>
+            </div>
+        </main>
+
+        <!-- TIMELINE_ACTIVE State -->
+        <main id="screen-timeline" class="screen">
+            <div class="timeline-container">
+                <h2 id="current-goal-display">Your Goal</h2>
+
+                <div id="timeline-list" class="timeline-list">
+                    <!-- Steps will be injected here by JS -->
+                </div>
+            </div>
+        </main>
+
+        <!-- AI Assistant Modal -->
+        <div id="modal-assistant" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>AI Assistant</h3>
+                    <button id="btn-close-modal" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="assistant-context" class="context-text"></p>
+                    <div id="chat-history" class="chat-history"></div>
+                    <div class="chat-input-area">
+                        <input type="text" id="assistant-input" placeholder="Ask for help executing this step...">
+                        <button id="btn-send-message" class="primary-btn">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="/static/index.js"></script>
+</body>
+</html>
