@@ -141,3 +141,14 @@ This document tracks our financial balances, project milestones, and chronologic
   - Appended the finalized GDD to [game_design.md](file:///Users/bradleysandilands/Documents/coding/experimental/agent_memory/game_design.md).
 - **Outcome**: GDD successfully drafted.
 - **Next Agent Instructions**: "Read the GDD. Act as the UX Designer to write a One-Shot Ready UX Spec containing a screen inventory and state machine."
+
+
+### 2026-06-30: Phase 4 UX Specification (Wireframing) for Smallest Step
+- **Decision**: Developed a detailed, One-Shot Ready UX Specification for Smallest Step, transforming the GDD into concrete screen states and flows.
+- **Actions**:
+  - Defined the target persona and the core user journey using a state machine (`INPUT_GOAL` to `TIMELINE_ACTIVE` to `ASSISTANT_ACTIVE`).
+  - Mapped out the Screen Specifications, focusing heavily on the "fading future" UI for the timeline.
+  - Drafted the aesthetic guidelines (Zen minimalist theme, check-off snap animations, streak glow) and mock data.
+  - Appended the finalized UX Spec to `agent_memory/ux_spec.md`.
+- **Outcome**: UX Specification completed and checked in.
+- **Next Agent Instructions**: "Read the UX Spec. Act as the Technical Architect to design the files, modules, external dependencies, and build pipeline."
